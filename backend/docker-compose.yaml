@@ -1,27 +1,24 @@
-
-version: '3.8'
+# backend/docker-compose.yaml
+version: "3.8"
 
 services:
+
   postgres:
-    image: postgres:15
+    image: postgres:14
     environment:
-      POSTGRES_DB: micronotes
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpass
+      POSTGRES_DB: youruser
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    image: redis:6
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -29,56 +26,64 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    # Mount the entire backend/ directory here:
+    volumes:
+      - ./:/app
     ports:
       - "8000:8000"
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    environment:
+      # This single URL covers host, port, user, pass, and DB name
+      - DATABASE_URL=postgresql://youruser:yourpass@postgres:5432/youruser
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/micronotes
-      REDIS_URL: redis://redis:6379
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PINECONE_API_KEY: ${PINECONE_API_KEY}
-      PINECONE_ENVIRONMENT: ${PINECONE_ENVIRONMENT}
-    volumes:
-      - ./backend:/app
-      - ./uploads:/app/uploads
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   celery-worker:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: celery -A app.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://youruser:yourpass@postgres:5432/youruser
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/micronotes
-      REDIS_URL: redis://redis:6379
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      PINECONE_API_KEY: ${PINECONE_API_KEY}
-      PINECONE_ENVIRONMENT: ${PINECONE_ENVIRONMENT}
-    volumes:
-      - ./backend:/app
-      - ./uploads:/app/uploads
-    command: celery -A celery_app worker --loglevel=info
+      backend:
+        condition: service_started
 
   celery-beat:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: celery -A app.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://youruser:yourpass@postgres:5432/youruser
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/micronotes
-      REDIS_URL: redis://redis:6379
-    volumes:
-      - ./backend:/app
-    command: celery -A celery_app beat --loglevel=info
+      backend:
+        condition: service_started
 
 volumes:
-  postgres_data:
+  pgdata:
