@@ -14,6 +14,10 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     username: Optional[str] = None
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 class User(UserBase):
     id: uuid.UUID
     is_active: bool
@@ -22,3 +26,8 @@ class User(UserBase):
     
     class Config:
         from_attributes = True
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
