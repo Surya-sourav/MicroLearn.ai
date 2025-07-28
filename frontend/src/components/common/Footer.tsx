@@ -1,27 +1,18 @@
 import { Link } from "react-router-dom"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
+
+
+import { TextHoverEffect } from "../ui/text-hover-footer";
+
+
 
 export default function Footer() {
   return (
     <>
       {/* Newsletter */}
       <section className="flex w-full flex-col justify-center items-center gap-[10%] p-[5%] px-[10%] max-md:px-2">
-        <div className="flex w-full max-w-[80%] justify-center items-center justify-between gap-3 rounded-lg bg-[#F6F7FB] dark:bg-[#171717] p-6 max-md:max-w-full max-md:flex-col">
-          <div className="flex flex-col max-lg:text-center gap-1">
-            <h2 className="text-2xl text-gray-800 dark:text-gray-200 max-md:text-xl">Join our newsletter</h2>
-            <div className="text-gray-700 dark:text-gray-300">Get product insights and updates.</div>
-          </div>
-          <div className="flex h-[60px] items-center gap-2 overflow-hidden p-2">
-            <Input type="email" className="h-full w-full border-gray-600 p-2" placeholder="email" />
-            <Button
-              variant="outline"
-              className="rounded-full border border-black text-black dark:text-white dark:border-gray-300 bg-transparent"
-            >
-              Signup
-            </Button>
-          </div>
-        </div>
+        <div  className="h-[40rem] flex items-center justify-center text-xs">
+      <TextHoverEffect text="Micro.ai" />
+    </div>
       </section>
 
       {/* Footer */}
@@ -34,7 +25,7 @@ export default function Footer() {
                 alt="logo"
                 className="max-w-[120px] dark:invert"
               />
-              <div className="max-w-[120px] text-center text-3xl h-fit">PIXA</div>
+              <div className="max-w-[120px] text-center text-xl h-fit">M I C R O</div>
             </Link>
             <div className="flex gap-4 text-lg">
               <Link to="#" aria-label="Github">
@@ -118,8 +109,8 @@ export default function Footer() {
         <hr className="mt-8" />
 
         <div className="mt-2 flex gap-2 flex-col text-gray-700 dark:text-gray-300 items-center text-[12px] w-full text-center justify-around">
-          <span>Copyright © 2023-2025</span>
-          <span>All trademarks and copyrights belong to their respective owners.</span>
+          <span>Copyright ©2025</span>
+          <span>Build with ❤️ for learners</span>
         </div>
       </footer>
     </>

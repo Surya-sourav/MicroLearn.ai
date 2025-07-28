@@ -27,9 +27,9 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
       </Link>
 
       <nav className="hidden lg:flex items-center gap-5 mx-auto">
-        <Link to="#" className="hover:text-black dark:hover:text-white transition-colors">
+        {/* <Link to="#" className="hover:text-black dark:hover:text-white transition-colors">
           API
-        </Link>
+        </Link> */}
         <Link to="#" className="hover:text-black dark:hover:text-white transition-colors">
           Blog
         </Link>
@@ -42,9 +42,9 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
             <ChevronDown className="w-4 h-4" />
           </button>
         </div>
-        <a href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">
+        {/* <a href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">
           Pricing
-        </a>
+        </a> */}
       </nav>
 
       <div className="flex items-center gap-4 ml-auto">
@@ -58,7 +58,7 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
         </Button>
         <Button asChild className="hidden lg:flex gap-2">
           <Link to="/dashboard">
-            <span>Try playground</span>
+            <span>Learn Micro Way</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </Button>
@@ -84,12 +84,12 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
             <Link to="#" className="hover:text-black dark:hover:text-white transition-colors">
               Features
             </Link>
-            <a href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">
+            {/* <a href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">
               Pricing
-            </a>
+            </a> */}
             <Button asChild className="mt-4">
               <Link to="/dashboard">
-                <span>Try playground</span>
+                <span>Learn Micro Way</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>

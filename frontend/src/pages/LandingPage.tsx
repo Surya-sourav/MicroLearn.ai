@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { InfiniteMovingCards } from "../components/ui/moving-cards"
 import { Link } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
@@ -9,6 +10,9 @@ import Header from "../components/common/Header"
 import Footer from "../components/common/Footer"
 import LoginForm from "../components/auth/LoginForm"
 import SignupForm from "../components/auth/RegisterForm"
+import { GoogleGeminiEffect } from "../components/ui/google-gemini-scroll"
+import { useScroll, useTransform } from "motion/react";
+import React from "react"
 import {
   Play,
   ArrowRight,
@@ -25,13 +29,33 @@ import {
   Grid3X3,
   Check,
 } from "lucide-react"
+import { motion } from "motion/react";
+import { AuroraBackground } from "../components/ui/aurora-bg"
+import { ContainerScroll } from "../components/ui/container-scroll"
+import { Box, Lock, Search, Settings, Sparkles } from "lucide-react";
+import { GlowingEffect } from "../components/ui/glowing-effect"
+
+
 
 export default function LandingPage() {
+    
+
   const [isDark, setIsDark] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
+
+    const ref = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+const pathLengthFirst = useTransform(scrollYProgress, [0, 0.8], [0.2, 1.2]);
+  const pathLengthSecond = useTransform(scrollYProgress, [0, 0.8], [0.15, 1.2]);
+  const pathLengthThird = useTransform(scrollYProgress, [0, 0.8], [0.1, 1.2]);
+  const pathLengthFourth = useTransform(scrollYProgress, [0, 0.8], [0.05, 1.2]);
+  const pathLengthFifth = useTransform(scrollYProgress, [0, 0.8], [0, 1.2]);
 
   useEffect(() => {
     if (isDark) {
@@ -45,7 +69,126 @@ export default function LandingPage() {
     setOpenFaq(openFaq === index ? null : index)
   }
 
+
+interface GridItemProps {
+  area: string;
+  children?: React.ReactNode;
+}
+
+const GridItem: React.FC<GridItemProps> = ({ area, children }) => {
   return (
+    <li
+      className={`
+        list-none
+        ${area}
+
+        /* medium‑card footprint */
+        w-80     /* 20rem */
+        h-96     /* 24rem */
+      `}
+    >
+      <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
+        <GlowingEffect
+          spread={40}
+          glow={true}
+          disabled={false}
+          proximity={20}
+          inactiveZone={0.01}
+        />
+
+        {/* fill the full container */}
+        <div className="h-full w-full">
+          {children}
+        </div>
+      </div>
+    </li>
+  );
+};
+
+const features = [
+  {
+    area: "md:[grid-area:1/1/2/3] xl:[grid-area:1/1/2/3]",
+    icon: <Box className="h-6 w-6 text-black dark:text-neutral-400" />,
+    title: "Do things the right way",
+    description: "Running out of copy so I'll write anything.",
+  },
+  {
+    area: "md:[grid-area:1/3/2/5] xl:[grid-area:1/3/2/5]",
+    icon: <Settings className="h-6 w-6 text-black dark:text-neutral-400" />,
+    title: "The best AI code editor ever.",
+    description: "Yes, it's true. I'm not even kidding. Ask my mom if you don't believe me.",
+  },
+  {
+    area: "md:[grid-area:2/1/3/3] xl:[grid-area:2/1/3/3]",
+    icon: <Lock className="h-6 w-6 text-black dark:text-neutral-400" />,
+    title: "You should buy Aceternity UI Pro",
+    description: "It's the best money you'll ever spend",
+  },
+  {
+    area: "md:[grid-area:2/3/3/5] xl:[grid-area:1/5/2/7]",
+    icon: <Sparkles className="h-6 w-6 text-black dark:text-neutral-400" />,
+    title: "This card is also built by Cursor",
+    description: "I'm not even kidding. Ask my mom if you don't believe me.",
+  },
+  {
+    area: "md:[grid-area:3/1/4/5] xl:[grid-area:2/5/3/7]",
+    icon: <Search className="h-6 w-6 text-black dark:text-neutral-400" />,
+    title: "Coming soon on Aceternity UI",
+    description: "I'm writing the code as I record this, no shit.",
+  },
+];
+
+
+interface InfiniteMovingCardsProps {
+  items: { quote: string; name: string; title: string }[]
+  direction?: "left" | "right"
+  speed?: "fast" | "normal" | "slow"
+
+}
+
+// 1. your raw data, unchanged
+
+const rawTestimonials = [
+  {
+    name: "Mante",
+    title: "Glu, CTO",      // ← was `company`
+    quote:
+      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam dolore deleniti iusto Numquam!",  // ← was `text`
+  },
+  {
+    name: "Trich B",
+    title: "AMI, CEO",
+    quote:
+      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet.",
+  },
+  {
+    name: "John B",
+    title: "Benz, CEO",
+    quote:
+      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, expedita nihil repellendus accusamus itaque facere labore, suscipit tempore in harum repellat.",
+  },
+  {
+    name: "Ben Alfert B",
+    title: "XZ tech, CTO",
+    quote: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero.",
+  },
+  {
+    name: "Rachel",
+    title: "Gem, CTO",
+    quote:
+      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem, ipsum dolor.",
+  },
+  {
+    name: "Jamie",
+    title: "SnapFist.ai, CEO",
+    quote:
+      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est, nihil vitae fuga ab reiciendis optio et corporis dolorem alias deserunt.",
+  },
+];
+
+
+  return (
+    
     <div className="min-h-screen bg-[#fcfcfc] text-black dark:bg-black dark:text-white">
       <Header isDark={isDark} setIsDark={setIsDark} />
 
@@ -70,6 +213,15 @@ export default function LandingPage() {
       )}
 
       {/* Hero Section */}
+      <AuroraBackground>
+      <motion.div
+        initial={{ opacity: 0.0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.8,
+          ease: "easeInOut",
+        }}>
       <section className="relative mt-20 flex min-h-screen w-full flex-col overflow-hidden max-lg:mt-[100px]">
         <div className="relative flex h-full min-h-screen w-full flex-col justify-center gap-6 p-[5%] max-xl:items-center max-lg:p-4">
           {/* Purple gradient background */}
@@ -77,14 +229,14 @@ export default function LandingPage() {
 
           <div className="flex flex-col min-h-[60vh] justify-center items-center">
             <h1 className="text-center text-7xl font-semibold uppercase leading-[90px] max-lg:text-4xl max-md:leading-snug">
-              <span>All your AI models</span>
+              <span>The Next Generation Learning</span>
               <br />
-              <span className="font-thin font-serif">in one place</span>
+              <span className="font-thin font-serif">___micro.ai___</span>
             </h1>
 
             <p className="mt-8 max-w-[450px] text-lg max-lg:text-base p-2 text-center text-gray-800 dark:text-white max-lg:max-w-full">
-              Your all in one AI companion. generate Images, videos, codes, docs, debug your web apps all with Pixa's
-              interface.
+              Your all in one AI companion For effective learning , in this fast pace world. If everything becomes smart , why dont your learning ? 
+              Ai-Flashcards , Ai-Quizes , Ai-Tutor & more...
             </p>
 
             <div className="mt-10 max-md:flex-col flex items-center gap-4">
@@ -107,11 +259,29 @@ export default function LandingPage() {
                 <span>Get started</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 duration-300" />
               </Button>
+        
             </div>
           </div>
+          </div>
+          </section>
+          </motion.div>
+          </AuroraBackground>
 
+        
           {/* Dashboard Preview */}
-          <div className="relative mt-8 flex w-full justify-center items-center">
+        <ContainerScroll 
+        titleComponent={
+          <>
+            <h1 className="text-4xl font-semibold text-black dark:text-white">
+              Unleash the power of <br />
+              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
+                Micro Learnings
+              </span>
+            </h1>
+          </>
+        }>
+         
+          < div className="relative mt-8 flex w-full justify-center items-center">
             <div className="absolute left-1/2 -translate-x-1/2 top-[5%] h-[200px] w-[200px] bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-3xl opacity-20" />
 
             <Card className="relative max-w-[80%] lg:w-[1024px] lg:h-[650px] max-lg:h-[450px] max-lg:w-full min-w-[320px] md:w-full min-h-[450px] shadow-xl overflow-hidden bg-white dark:bg-black border dark:border-[#36393c]">
@@ -132,15 +302,15 @@ export default function LandingPage() {
                     <div className="flex mt-2 gap-2 flex-col">
                       <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <ImageIcon className="w-5 h-5" />
-                        <span>Image generator</span>
+                        <span>FlashCards</span>
                       </Link>
                       <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <FileText className="w-5 h-5" />
-                        <span>Pdf generator</span>
+                        <span>Spaces</span>
                       </Link>
                       <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <Code className="w-5 h-5" />
-                        <span>Code generator</span>
+                        <span>Converse</span>
                       </Link>
                     </div>
 
@@ -207,213 +377,65 @@ export default function LandingPage() {
               </div>
             </Card>
           </div>
-        </div>
-      </section>
+             <img
+          src={`/linear.webp`}
+          alt="hero"
+          height={720}
+          width={1400}
+          className="mx-auto rounded-2xl object-cover h-full object-left-top"
+          draggable={false}
+        />
+      </ContainerScroll>
 
-      {/* Trusted Brands */}
-      <section className="relative flex w-full flex-col justify-center items-center overflow-hidden p-8">
-        <h2 className="text-3xl max-md:text-xl">Trusted by brands you love</h2>
+        <div
+      className="h-[400vh] bg-black w-full dark:border dark:border-white/[0.1] rounded-md relative pt-40 overflow-clip"
+      ref={ref}
+    >
+      <GoogleGeminiEffect
+        pathLengths={[
+          pathLengthFirst,
+          pathLengthSecond,
+          pathLengthThird,
+          pathLengthFourth,
+          pathLengthFifth,
+        ]}
+      />
+    </div>
 
-        <div className="mt-10 flex w-full gap-5 max-md:gap-2 justify-center">
-          {["Google", "Microsoft", "Adobe", "Airbnb", "Stripe", "Reddit"].map((brand) => (
-            <div key={brand} className="h-[30px] w-[150px]">
-              <img
-                src={`https://via.placeholder.com/150x30/6b7280/ffffff?text=${brand}`}
-                alt={brand}
-                className="h-full w-full object-contain grayscale hover:grayscale-0 transition-all"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Build AI Apps Section */}
-      <section className="relative flex w-full min-h-screen max-lg:min-h-[80vh] flex-col justify-center items-center overflow-hidden">
-        <div className="w-full justify-center items-center flex flex-col max-w-[900px] gap-4 p-4">
-          <div className="absolute right-[20%] top-[20%] h-[200px] w-[200px] bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-3xl opacity-20" />
-
-          <h2 className="text-6xl max-lg:text-4xl text-center leading-normal uppercase">
-            <span className="font-semibold">Build your own AI Apps</span>
-            <br />
-            <span className="font-serif">on top of Pixa APIs</span>
-          </h2>
-
-          <p className="mt-8 max-w-[650px] text-gray-900 dark:text-gray-200 text-center max-md:text-sm">
-            {
-              "Pixa's Playground is powered by Pixa's cutting-edge LLM API endpoints. Our powerful models simplify task automation, offering advanced capabilities in summarization, text generation, and Q&A handling."
-            }
-          </p>
-
-          <div className="flex mt-8">
-            <Button
-              variant="outline"
-              className="shadow-md hover:shadow-xl dark:shadow-gray-800 transition-all duration-300 border border-black dark:border-white bg-transparent"
-            >
-              Check Pixa APIs
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* Features Grid */}
-      <section className="relative flex w-full flex-col justify-center items-center overflow-hidden">
-        <div className="mt-8 flex flex-col w-full h-full items-center gap-5">
-          <div className="mt-5 flex flex-col gap-3 text-center">
-            <h2 className="text-6xl font-medium max-md:text-3xl p-2">Experience all the benefits of AI</h2>
-          </div>
+  <section className="flex flex-col items-center w-full overflow-hidden">
+      <h2 className="mt-8 text-6xl font-medium max-md:text-3xl text-center p-2">
+        With ❤️ For Learners !
+      </h2>
 
-          <div className="mt-6 flex flex-col max-w-[1150px] max-lg:max-w-full h-full p-4 max-lg:justify-center gap-8">
-            <div className="max-xl:flex max-xl:flex-col items-center grid grid-cols-3 gap-8 justify-center">
-              {[
-                {
-                  title: "Unified interface",
-                  description:
-                    "Our's is the only unified AI Interface tool brings together all your favorite chat models into one seamless platform. No more juggling between different AI systems—easily manage and interact with multiple chatbots from a single interface.",
-                  icon: Grid3X3,
-                },
-                {
-                  title: "API Access",
-                  description:
-                    "Pixa's LLM API offers advanced summarization, text generation, and question-answering. Easily integrate with support for JSON, HTML, Markdown, and plain text, enhancing your applications with powerful language tools.",
-                  icon: Code,
-                },
-                {
-                  title: "Pre-built Tools",
-                  description:
-                    "Pixa offers pre-built AI integrations for diverse creative tasks including image, video, music, and PDF generation, simplifying advanced feature integration into your apps.",
-                  icon: Grid3X3,
-                },
-              ].map((feature, index) => (
-                <Card
-                  key={index}
-                  className="w-[350px] h-[540px] max-md:w-full bg-[#f6f7fb] dark:bg-[#171717] hover:scale-[1.02] transition-transform duration-300"
-                >
-                  <CardContent className="p-10 gap-5 flex flex-col h-full">
-                    <div className="w-full min-h-[180px] h-[180px] overflow-hidden">
-                      <img
-                        src="https://via.placeholder.com/350x180/8b5cf6/ffffff?text=Feature"
-                        alt={feature.title}
-                        className="w-full object-contain h-auto"
-                      />
-                    </div>
-                    <h3 className="text-3xl max-md:text-2xl font-medium">{feature.title}</h3>
-                    <p className="text-base leading-normal text-gray-800 dark:text-gray-200">{feature.description}</p>
-                    <div className="flex items-center gap-2 mt-auto group">
-                      <span>Learn more</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Full width feature */}
-            <Card className="w-full md:h-[350px] max-md:min-h-[350px] bg-[#f6f7fb] dark:bg-[#171717] hover:scale-[1.02] transition-transform duration-300">
-              <CardContent className="p-10 gap-5 flex max-md:flex-col h-full">
-                <div className="text-6xl overflow-hidden rounded-xl w-full h-full max-md:h-[180px]">
-                  <img
-                    src="https://via.placeholder.com/600x350/3b82f6/ffffff?text=AI+Models"
-                    alt="AI models"
-                    className="w-full object-contain h-full"
-                  />
+      <ul className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-8 max-w-[1150px] w-full p-4">
+        {features.map((f, idx) => (
+          <GridItem key={idx} area={f.area}>
+            <Card className="w-full h-full bg-[#f6f7fb] dark:bg-[#171717] hover:scale-[1.02] transition-transform duration-300">
+              <CardContent className="p-6 flex flex-col h-full gap-4">
+                <div className="flex items-center justify-center w-10 h-10 bg-gray-200 dark:bg-neutral-700 rounded-full">
+                  {f.icon}
                 </div>
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-3xl max-md:text-2xl font-medium">Multiple AI models</h3>
-                  <p className="leading-normal text-gray-800 dark:text-gray-200">
-                    Pixa supports various AI models, including ChatGPT, Gemini, Claude, Mistral and more, providing a
-                    range of advanced capabilities for various language and creative tasks.
-                  </p>
-                  <div className="flex items-center gap-2 mt-auto group">
-                    <span>Learn more</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
-                  </div>
+                <h3 className="text-2xl font-medium">{f.title}</h3>
+                <p className="text-base flex-grow leading-relaxed text-gray-800 dark:text-gray-200">
+                  {f.description}
+                </p>
+                <div className="mt-auto flex items-center gap-2 text-indigo-600 group">
+                  <span>Learn more</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
+          </GridItem>
+        ))}
+      </ul>
+    </section>
 
-      {/* Pre-built AI Tools */}
-      <section className="relative mt-10 flex min-h-screen w-full flex-col items-center lg:p-6">
-        <div className="mt-[5%] flex h-full w-full justify-center gap-2 p-4 max-lg:max-w-full max-lg:flex-col">
-          <div className="relative flex max-w-[30%] max-lg:max-w-full flex-col items-start gap-4 p-2 max-lg:items-center max-lg:justify-center max-lg:w-full">
-            <div className="top-40 flex flex-col lg:sticky items-center max-h-fit max-w-[850px] max-lg:max-h-fit max-lg:max-w-[320px] overflow-hidden">
-              <h2 className="text-5xl font-serif text-center font-medium max-md:text-3xl">Pre-built AI Tools</h2>
-              <Button
-                variant="outline"
-                className="mt-8 bg-transparent text-black border border-black dark:border-white dark:text-white"
-                onClick={() => setShowSignup(true)}
-              >
-                Start Chat
-              </Button>
-            </div>
-          </div>
 
-          <div className="flex flex-col gap-10 h-full max-w-1/2 max-lg:max-w-full px-[10%] max-lg:px-4 max-lg:gap-3 max-lg:w-full lg:top-[20%] items-center">
-            {[
-              {
-                icon: Code,
-                title: "AI code generator",
-                description:
-                  "AI code generation tools to create code from natural language or patterns, streamlining development and improving efficiency.",
-              },
-              {
-                icon: FileText,
-                title: "PDF generator",
-                description:
-                  "Use AI tools to automate PDF creation and content extraction, improving document management and data processing.",
-              },
-              {
-                icon: ImageIcon,
-                title: "Image generation",
-                description:
-                  "Prebuilt AI tools for image generation create visuals from text or patterns, enhancing design and creative projects.",
-              },
-              {
-                icon: BarChart3,
-                title: "AI Analytics",
-                description:
-                  "Our AI analytics tools analyze data patterns and trends, providing actionable insights and enhancing decision-making.",
-              },
-              {
-                icon: Music,
-                title: "Music generator",
-                description:
-                  "Access our AI music generation tools create original compositions from input parameters, enabling effortless music creation for various needs.",
-              },
-              {
-                icon: Video,
-                title: "Video generator",
-                description:
-                  "Use our AI video generation tools create videos from text or templates, streamlining content creation and production.",
-              },
-            ].map((tool, index) => (
-              <Card
-                key={index}
-                className="h-[240px] w-[450px] max-md:w-full hover:shadow-lg dark:shadow-[#171717] duration-300 transition-all"
-              >
-                <CardContent className="p-8 gap-8 flex h-full group">
-                  <div className="text-4xl max-md:text-2xl">
-                    <tool.icon className="w-10 h-10" />
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <h3 className="text-2xl max-md:text-xl">{tool.title}</h3>
-                    <p className="text-gray-800 dark:text-gray-100 max-md:text-sm">{tool.description}</p>
-                    <div className="mt-auto flex gap-2 underline underline-offset-4">
-                      <span>Learn more</span>
-                      <ArrowUpRight className="w-4 h-4 group-hover:-translate-y-1 group-hover:translate-x-1 duration-300 transition-transform" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
+     
       {/* Additional Features */}
-      <section className="relative flex w-full min-h-[110vh] max-md:min-h-[80vh] flex-col justify-center items-center overflow-hidden">
+      {/* <section className="relative flex w-full min-h-[110vh] max-md:min-h-[80vh] flex-col justify-center items-center overflow-hidden">
         <div className="w-full max-lg:max-w-full justify-center items-center flex flex-col max-w-[80%] gap-4 p-4">
           <h3 className="text-5xl font-medium max-md:text-3xl text-center leading-normal">Additional Features</h3>
 
@@ -472,108 +494,29 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
-      {/* Subscription Comparison */}
-      <section className="relative flex w-full min-h-screen max-md:min-h-[80vh] flex-col justify-center items-center overflow-hidden">
-        <div className="w-full max-lg:max-w-full justify-center items-center flex flex-col max-w-[80%] gap-4 p-4">
-          <h3 className="text-5xl font-medium max-md:text-3xl text-center leading-normal">
-            One Subscription for it all
-          </h3>
-          <p className="mt-3 max-w-[600px] text-center">
-            Why pay for multiple expensive subscriptions when one subscription can do it all? Access multiple AI models
-            and save 1000's of dollar per year.
-          </p>
-
-          <div className="mt-8 relative flex max-lg:flex-col gap-5">
-            <Card className="flex w-full max-w-[650px] max-md:max-w-full flex-col items-center gap-2 rounded-lg border bg-white dark:bg-[#080808] dark:border-[#1f2123] p-2 shadow-xl max-lg:w-[320px]">
-              <img
-                src="https://via.placeholder.com/650x300/ef4444/ffffff?text=Multiple+Subscriptions"
-                alt="Multi sub"
-                className="w-full h-auto object-contain"
-              />
-            </Card>
-
-            <Card className="flex w-full max-w-[650px] flex-col items-center gap-2 rounded-lg border bg-white dark:bg-[#080808] dark:border-[#1f2123] p-2 shadow-xl max-lg:w-[320px]">
-              <img
-                src="https://via.placeholder.com/650x300/10b981/ffffff?text=Single+Subscription"
-                alt="Single sub"
-                className="w-full h-auto object-contain"
-              />
-            </Card>
-          </div>
-
-          <Button className="group shadow-xl flex gap-2 mt-10" onClick={() => setShowSignup(true)}>
-            <span>Start Chat</span>
-            <ArrowRight className="w-4 h-4 duration-300 group-hover:translate-x-1" />
-          </Button>
-        </div>
-      </section>
 
       {/* Testimonials */}
-      <section className="flex min-h-screen w-full flex-col justify-center items-center p-[2%]">
-        <h3 className="text-4xl font-medium text-center max-md:text-2xl">Join the professionals using Pixa</h3>
+     
+      {/* <div className="flex w-full flex-col items-center py-16 bg-white dark:bg-black overflow-hidden">
+      <h3 className="text-4xl font-medium text-center max-md:text-2xl">
+        Join the professionals using Pixa
+      </h3>
 
-        <div className="mt-20 gap-10 space-y-8 max-md:columns-1 lg:columns-2 xl:columns-3">
-          {[
-            {
-              name: "Mante",
-              company: "Glu, cto",
-              text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam dolore deleniti iusto Numquam!",
-            },
-            {
-              name: "Trich B",
-              company: "AMI, ceo",
-              text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet.",
-            },
-            {
-              name: "John B",
-              company: "Benz, ceo",
-              text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, expedita nihil repellendus accusamus itaque facere labore, suscipit tempore in harum repellat.",
-            },
-            {
-              name: "Ben Alfert B",
-              company: "XZ tech, cto",
-              text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero.",
-            },
-            {
-              name: "Rachel",
-              company: "Gem, cto",
-              text: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem, ipsum dolor.",
-            },
-            {
-              name: "Jamie",
-              company: "SnapFist.ai, ceo",
-              text: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est, nihil vitae fuga ab reiciendis optio et corporis dolorem alias deserunt.",
-            },
-          ].map((testimonial, index) => (
-            <Card
-              key={index}
-              className="flex h-fit w-[350px] break-inside-avoid flex-col gap-4 rounded-lg border bg-[#f6f7fb] dark:bg-[#080808] dark:border-[#1f2123] p-4 max-lg:w-[320px]"
-            >
-              <CardContent className="p-0">
-                <div className="flex items-center gap-3">
-                  <div className="h-[50px] w-[50px] overflow-hidden rounded-full">
-                    <img
-                      src={`https://via.placeholder.com/50x50/6366f1/ffffff?text=${testimonial.name.charAt(0)}`}
-                      alt={testimonial.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-gray-700 dark:text-gray-300">{testimonial.company}</div>
-                  </div>
-                </div>
-                <p className="mt-4 text-gray-800 dark:text-gray-200">{testimonial.text}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <div className="relative mt-12 h-[40rem] w-full overflow-hidden">
+        <InfiniteMovingCards
+          items={rawTestimonials}
+          direction="left"   // or "left"
+          speed="slow"        // or "medium" | "fast"
+        />
+      </div>
+    </div> */}
+
+
 
       {/* Pricing */}
-      <section className="mt-5 flex w-full flex-col gap-6 items-center p-[2%]" id="pricing">
+      {/* <section className="mt-5 flex w-full flex-col gap-6 items-center p-[2%]" id="pricing">
         <h3 className="text-5xl font-medium max-md:text-2xl">Choose the right plan for you</h3>
 
         <div className="mt-10 flex flex-wrap justify-center gap-8 max-lg:flex-col">
@@ -650,7 +593,7 @@ export default function LandingPage() {
             </Card>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* FAQ */}
       <section className="relative flex w-full flex-col justify-center items-center gap-[10%] p-[5%] px-[10%]">
@@ -659,22 +602,22 @@ export default function LandingPage() {
         <div className="mt-5 flex min-h-[300px] w-full max-w-[850px] flex-col gap-4">
           {[
             {
-              question: "What's Pixa playground?",
+              question: "What's MicroLearning?",
               answer:
                 "Pixa's playground is an integrated webapp to seamlessly test different LLM models such as GPT4, Claude, Gemini, etc.",
             },
             {
-              question: "What are LLM?",
+              question: "How Will AI help me learn?",
               answer:
                 'LLM stands for "Large Language Model." It\'s a type of artificial intelligence model trained on vast amounts of text data to understand and generate human-like text.',
             },
             {
-              question: "Where can I test different AI models?",
+              question: "Where can I begin my Ai Learning Journey?",
               answer:
                 "You can use Pixa's AI Playground to test different models, including GPT4, Claude, Perplexity and more.",
             },
             {
-              question: "Is Pixa Free to use?",
+              question: "Is Micro.ai Free to use?",
               answer: "You can start using PixLab for free, and later upgrade your plan to access all its features.",
             },
           ].map((faq, index) => (
@@ -703,12 +646,12 @@ export default function LandingPage() {
       <section className="relative flex p-2 w-full min-h-[60vh] flex-col justify-center items-center overflow-hidden">
         <div className="w-full h-full min-h-[450px] max-lg:max-w-full rounded-md lg:py-[5%] bg-[#f6f7fb] dark:bg-[#171717] justify-center items-center flex flex-col max-w-[80%] gap-4 p-4">
           <h3 className="text-5xl font-medium max-md:text-3xl text-center leading-normal">
-            Access and compare multiple AI models
+           What are your Waiting for ?
           </h3>
 
           <div className="mt-8 relative flex max-lg:flex-col gap-5">
             <Button className="rounded-full p-4 font-medium" onClick={() => setShowSignup(true)}>
-              Launch Playground
+              Learn 100x
             </Button>
           </div>
         </div>

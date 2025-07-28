@@ -263,3 +263,15 @@
 .purple-gradient {
   background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
 }
+
+@import "tailwindcss";
+
+@theme inline {
+  --animate-scroll: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+
+  @keyframes scroll {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
+}
