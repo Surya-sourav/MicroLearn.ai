@@ -1,0 +1,10 @@
+This is a test document.
+
+It contains multiple lines of text
+to test the document ingestion system.
+
+We'll use this to verify:
+1. File upload
+2. Text extraction
+3. Content processing
+4. Vector storage 

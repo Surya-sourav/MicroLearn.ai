@@ -1,0 +1,13 @@
+**/__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+**/.env
+.DS_Store
+uploads/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+*.rdb
