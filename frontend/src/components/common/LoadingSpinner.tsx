@@ -1,14 +1,26 @@
-import React from 'react';
+import type React from "react"
+import { Brain } from "lucide-react"
 
-const LoadingSpinner: React.FC = () => (
-  <div className="flex justify-center items-center">
-    <svg className="spinner" viewBox="0 0 50 50">
-      <circle className="opacity-25" cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4"></circle>
-      <circle className="opacity-75" cx="25" cy="25" r="20" fill="none" stroke="#6366f1" strokeWidth="4" strokeDasharray="31.4 31.4" strokeDashoffset="0">
-        <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite" />
-      </circle>
-    </svg>
-  </div>
-);
+interface LoadingSpinnerProps {
+  size?: "sm" | "md" | "lg"
+  text?: string
+}
 
-export default LoadingSpinner;
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = "md", text }) => {
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center space-y-4">
+      <div className={`${sizeClasses[size]} animate-spin`}>
+        <Brain className="w-full h-full text-purple-500" />
+      </div>
+      {text && <p className="text-gray-400 text-sm">{text}</p>}
+    </div>
+  )
+}
+
+export default LoadingSpinner

@@ -1,42 +1,67 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.App {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Custom button styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn-secondary {
+  @apply border border-gray-600 text-gray-300 hover:bg-gray-800 bg-transparent font-medium py-2 px-4 rounded-md transition-all duration-200;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.btn-outline {
+  @apply border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white bg-transparent font-medium py-2 px-4 rounded-md transition-all duration-200;
 }
 
+/* Card styles */
 .card {
-  padding: 2em;
+  @apply bg-gray-800/50 border border-gray-700 rounded-lg p-6 backdrop-blur-sm;
 }
 
-.read-the-docs {
-  color: #888;
+.card-hover {
+  @apply hover:border-gray-600 hover:shadow-lg transition-all duration-300;
+}
+
+/* Input styles */
+.input-primary {
+  @apply bg-gray-800 border border-gray-700 text-white placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+}
+
+/* Text gradient */
+.text-gradient {
+  @apply bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent;
+}
+
+/* Glass effect */
+.glass {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+}
+
+/* Hover effects */
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.hover-glow {
+  @apply transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25;
+}
+
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-gray-700 rounded;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktop-hidden {
+    display: none;
+  }
 }

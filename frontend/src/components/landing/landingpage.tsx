@@ -3,20 +3,20 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "./components/ui/button"
-import { Card , CardContent } from "./components/ui/card"
-import { Input } from "./components/ui/input"
-import Header from "./components/common/Header"
-import Footer from "./components/common/Footer"
-import LoginForm from "./components/auth/LoginForm"
-import RegisterPage from "./components/auth/RegisterForm"
+import { Button } from "../ui/button"
+import { Card , CardContent } from "../ui/card"
+import { Input } from "../ui/input"
 import {
+  Menu,
+  X,
   Play,
   ArrowRight,
   ArrowUpRight,
   ChevronDown,
   Plus,
   Minus,
+  Sun,
+  Moon,
   Code,
   FileText,
   ImageIcon,
@@ -27,12 +27,11 @@ import {
   Check,
 } from "lucide-react"
 
-export default function App() {
+export default function PixaLanding() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
-  const [showSignup, setShowSignup] = useState(false)
 
   useEffect(() => {
     if (isDark) {
@@ -48,11 +47,63 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-black dark:bg-black dark:text-white">
-      <Header isDark={isDark} setIsDark={setIsDark} />
+      {/* Header */}
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-20 flex h-[60px] w-full max-w-5xl px-4 text-gray-700 bg-white dark:text-gray-200 dark:bg-[#17181b] rounded-md shadow-md backdrop-blur-lg opacity-[0.99]">
+        <Link href="#" className="flex p-1 gap-2 items-center">
+          <div className="h-[30px] max-w-[100px]">
+            <Image
+              src="/placeholder.svg?height=30&width=100&text=PIXA"
+              alt="logo"
+              width={100}
+              height={30}
+              className="object-contain h-full w-full dark:invert"
+            />
+          </div>
+          <span className="uppercase text-base font-medium">Pixa</span>
+        </Link>
 
-      {/* Auth Modals */}
-      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
-      {showSignup && <RegisterPage onClose={() => setShowSignup(false)} />}
+        <nav className="hidden lg:flex items-center gap-5 mx-auto">
+          <Link href="#" className="hover:text-black dark:hover:text-white transition-colors">
+            API
+          </Link>
+          <Link href="#" className="hover:text-black dark:hover:text-white transition-colors">
+            Blog
+          </Link>
+          <Link href="#" className="hover:text-black dark:hover:text-white transition-colors">
+            Solutions
+          </Link>
+          <div className="relative group">
+            <button className="flex items-center gap-1 hover:text-black dark:hover:text-white transition-colors">
+              <span>Features</span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+          <Link href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">
+            Pricing
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-4 ml-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDark(!isDark)}
+            className="text-gray-600 dark:text-gray-300"
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
+          <Button asChild className="hidden lg:flex gap-2">
+            <Link href="#">
+              <span>Try playground</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Button>
+        </div>
+
+        <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </Button>
+      </header>
 
       {/* Video Modal */}
       {isVideoOpen && (
@@ -60,7 +111,7 @@ export default function App() {
           <div className="bg-white dark:bg-[#16171A] rounded-xl p-6 max-w-4xl w-full max-h-[90vh]">
             <div className="flex justify-end mb-4">
               <Button variant="ghost" size="icon" onClick={() => setIsVideoOpen(false)}>
-                ×
+                <X className="w-6 h-6" />
               </Button>
             </div>
             <div className="aspect-video bg-black rounded-md flex items-center justify-center">
@@ -101,12 +152,11 @@ export default function App() {
                 <span>Watch video</span>
               </Button>
 
-              <Button
-                className="w-[170px] max-lg:w-[160px] rounded-xl py-4 max-lg:py-2 group shadow-lg"
-                onClick={() => setShowSignup(true)}
-              >
-                <span>Get started</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 duration-300" />
+              <Button asChild className="w-[170px] max-lg:w-[160px] rounded-xl py-4 max-lg:py-2 group shadow-lg">
+                <Link href="#">
+                  <span>Get started</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 duration-300" />
+                </Link>
               </Button>
             </div>
           </div>
@@ -151,7 +201,6 @@ export default function App() {
                       <Button
                         variant="outline"
                         className="w-full bg-transparent border-black text-black dark:border-white dark:text-white"
-                        onClick={() => setShowSignup(true)}
                       >
                         Signup
                       </Button>
@@ -175,7 +224,7 @@ export default function App() {
                         <div className="w-full flex text-center flex-col justify-center">
                           <h2 className="text-4xl max-md:text-2xl max-md:mt-3 opacity-80">Try Prompts</h2>
                           <div className="mt-6 max-md:mt-3">
-                            <span>{"What's Pixa playground?"}</span>
+                            <span>What's Pixa playground?</span>
                             <span className="animate-pulse">|</span>
                           </div>
                         </div>
@@ -248,9 +297,8 @@ export default function App() {
           </h2>
 
           <p className="mt-8 max-w-[650px] text-gray-900 dark:text-gray-200 text-center max-md:text-sm">
-            {
-              "Pixa's Playground is powered by Pixa's cutting-edge LLM API endpoints. Our powerful models simplify task automation, offering advanced capabilities in summarization, text generation, and Q&A handling."
-            }
+            Pixa's Playground is powered by Pixa's cutting-edge LLM API endpoints. Our powerful models simplify task
+            automation, offering advanced capabilities in summarization, text generation, and Q&A handling.
           </p>
 
           <div className="flex mt-8">
@@ -356,7 +404,6 @@ export default function App() {
               <Button
                 variant="outline"
                 className="mt-8 bg-transparent text-black border border-black dark:border-white dark:text-white"
-                onClick={() => setShowSignup(true)}
               >
                 Start Chat
               </Button>
@@ -522,9 +569,11 @@ export default function App() {
             </Card>
           </div>
 
-          <Button className="group shadow-xl flex gap-2 mt-10" onClick={() => setShowSignup(true)}>
-            <span>Start Chat</span>
-            <ArrowRight className="w-4 h-4 duration-300 group-hover:translate-x-1" />
+          <Button asChild className="group shadow-xl flex gap-2 mt-10">
+            <Link href="#">
+              <span>Start Chat</span>
+              <ArrowRight className="w-4 h-4 duration-300 group-hover:translate-x-1" />
+            </Link>
           </Button>
         </div>
       </section>
@@ -663,7 +712,6 @@ export default function App() {
                 <Button
                   variant={plan.highlighted ? "default" : "outline"}
                   className={`mt-8 w-full transition-transform duration-300 hover:scale-x-[1.02] ${!plan.highlighted ? "text-black bg-transparent border border-black dark:border-white dark:text-white" : ""}`}
-                  onClick={() => setShowSignup(true)}
                 >
                   Choose plan
                 </Button>
@@ -728,14 +776,132 @@ export default function App() {
           </h3>
 
           <div className="mt-8 relative flex max-lg:flex-col gap-5">
-            <Button className="rounded-full p-4 font-medium" onClick={() => setShowSignup(true)}>
-              Launch Playground
+            <Button asChild className="rounded-full p-4 font-medium">
+              <Link href="#">Launch Playground</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <Footer />
+      {/* Newsletter */}
+      <section className="flex w-full flex-col justify-center items-center gap-[10%] p-[5%] px-[10%] max-md:px-2">
+        <div className="flex w-full max-w-[80%] justify-center items-center justify-between gap-3 rounded-lg bg-[#F6F7FB] dark:bg-[#171717] p-6 max-md:max-w-full max-md:flex-col">
+          <div className="flex flex-col max-lg:text-center gap-1">
+            <h2 className="text-2xl text-gray-800 dark:text-gray-200 max-md:text-xl">Join our newsletter</h2>
+            <div className="text-gray-700 dark:text-gray-300">Get product insights and updates.</div>
+          </div>
+          <div className="flex h-[60px] items-center gap-2 overflow-hidden p-2">
+            <Input type="email" className="h-full w-full border-gray-600 p-2" placeholder="email" />
+            <Button
+              variant="outline"
+              className="rounded-full border border-black text-black dark:text-white dark:border-gray-300 bg-transparent"
+            >
+              Signup
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="mt-auto flex flex-col w-full gap-4 text-sm pt-[5%] pb-10 px-[10%] text-black dark:text-white max-md:flex-col">
+        <div className="flex max-md:flex-col max-md:gap-6 gap-3 w-full justify-around">
+          <div className="flex h-full w-[250px] flex-col items-center gap-6 max-md:w-full">
+            <Link href="#" className="w-full items-center flex flex-col gap-6">
+              <Image
+                src="/placeholder.svg?height=120&width=120&text=PIXA"
+                alt="logo"
+                width={120}
+                height={120}
+                className="max-w-[120px] dark:invert"
+              />
+              <div className="max-w-[120px] text-center text-3xl h-fit">PIXA</div>
+            </Link>
+            <div className="flex gap-4 text-lg">
+              <Link href="#" aria-label="Github">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+              </Link>
+              <Link href="#" aria-label="Twitter">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                </svg>
+              </Link>
+              <Link href="#" aria-label="LinkedIn">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex max-md:flex-col flex-wrap gap-6 h-full w-full justify-around">
+            <div className="flex h-full w-[200px] flex-col gap-4">
+              <h2 className="text-xl">Resources</h2>
+              <div className="flex flex-col gap-3">
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Getting started
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  API Docs
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  API Endpoints
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Health status
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Pricing
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex h-full w-[200px] flex-col gap-4">
+              <h2 className="text-xl">Company</h2>
+              <div className="flex flex-col gap-3">
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Support channels
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Systems
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Blog
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Twitter
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Github
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex h-full w-[200px] flex-col gap-4">
+              <h2 className="text-xl">Legal</h2>
+              <div className="flex flex-col gap-3">
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Terms of service
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  Privacy Policy
+                </Link>
+                <Link href="#" className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white">
+                  DCMA - Content Takedown
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr className="mt-8" />
+
+        <div className="mt-2 flex gap-2 flex-col text-gray-700 dark:text-gray-300 items-center text-[12px] w-full text-center justify-around">
+          <span>Copyright © 2023-2025</span>
+          <span>All trademarks and copyrights belong to their respective owners.</span>
+        </div>
+      </footer>
     </div>
   )
 }

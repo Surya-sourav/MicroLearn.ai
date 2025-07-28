@@ -1,20 +1,80 @@
-import React from 'react';
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "../ui/globals.css"
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen bg-background flex flex-col">
-    <header className="bg-primary text-white shadow p-4 flex items-center justify-between">
-      <h1 className="text-2xl font-bold tracking-tight">MicroLearn</h1>
-      <nav>
-        <a href="/" className="mx-2 hover:underline">Dashboard</a>
-        <a href="/spaces" className="mx-2 hover:underline">Spaces</a>
-        <a href="/flashcards" className="mx-2 hover:underline">Flashcards</a>
-        <a href="/documents" className="mx-2 hover:underline">Documents</a>
-        <a href="/chat" className="mx-2 hover:underline">Chat</a>
-      </nav>
-    </header>
-    <main className="flex-1 container mx-auto px-4 py-8">{children}</main>
-    <footer className="bg-muted text-center text-gray-500 py-4 text-sm">© 2025 MicroLearn. All rights reserved.</footer>
-  </div>
-);
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+})
 
-export default Layout;
+export const metadata: Metadata = {
+  title: "Pixa - All your AI models in one place",
+  description:
+    "Your all in one AI companion. Generate images, videos, codes, docs, debug your web apps all with Pixa's interface.",
+  keywords: [
+    "AI",
+    "artificial intelligence",
+    "image generation",
+    "code generation",
+    "chatbot",
+    "GPT",
+    "Claude",
+    "Gemini",
+  ],
+  authors: [{ name: "Pixa Team" }],
+  creator: "Pixa",
+  publisher: "Pixa",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://pixa.ai",
+    title: "Pixa - All your AI models in one place",
+    description:
+      "Your all in one AI companion. Generate images, videos, codes, docs, debug your web apps all with Pixa's interface.",
+    siteName: "Pixa",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pixa - All your AI models in one place",
+    description:
+      "Your all in one AI companion. Generate images, videos, codes, docs, debug your web apps all with Pixa's interface.",
+    creator: "@pixa_ai",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" className={inter.variable}>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#000000" />
+      </head>
+      <body className={`${inter.className} antialiased`}>
+        <div id="root">{children}</div>
+      </body>
+    </html>
+  )
+}
