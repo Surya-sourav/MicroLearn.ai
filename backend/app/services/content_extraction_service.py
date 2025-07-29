@@ -1,171 +1,146 @@
-# import os
-# import logging
-# from typing import List, Dict, Any, Optional
-# import camelot
-# import tabula
-# import cv2
-# import numpy as np
-# import pandas as pd
-# from PIL import Image
-# from pathlib import Path
-# import pytesseract
-# import json
+import os
+import logging
+from typing import List, Dict, Any, Optional
+from PyPDF2 import PdfReader
+from PIL import Image
+from pathlib import Path
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-# class ContentExtractionService:
-#     def __init__(self):
-#         pass
+class ContentExtractionService:
+    def __init__(self):
+        pass
         
-#     async def extract_tables(self, pdf_path: str) -> List[Dict[str, Any]]:
-#         """
-#         Extract tables from PDF using both Camelot and Tabula
-#         Returns list of tables with their metadata and content
-#         """
-#         try:
-#             tables = []
-            
-#             # Try Camelot first (better for complex tables)
-#             camelot_tables = camelot.read_pdf(
-#                 pdf_path,
-#                 pages='all',
-#                 flavor='lattice'  # Use 'stream' for text-based tables
-#             )
-            
-#             for idx, table in enumerate(camelot_tables):
-#                 df = table.df
-#                 # Calculate table quality metrics
-#                 accuracy = table.accuracy
-#                 whitespace = table.whitespace
+    async def extract_text_and_metadata(self, pdf_path: str) -> Dict[str, Any]:
+        
+        try:
+            logger.info(f"Starting text extraction from PDF: {pdf_path}")
+            if not os.path.exists(pdf_path):
+                raise FileNotFoundError(f"PDF file not found: {pdf_path}")
                 
-#                 tables.append({
-#                     'extractor': 'camelot',
-#                     'table_number': idx + 1,
-#                     'page': table.page,
-#                     'data': df.to_dict('records'),
-#                     'headers': df.columns.tolist(),
-#                     'quality_metrics': {
-#                         'accuracy': accuracy,
-#                         'whitespace': whitespace
-#                     }
-#                 })
+            reader = PdfReader(pdf_path)
+            content = []
+            metadata = {
+                "pages": len(reader.pages),
+                "title": reader.metadata.get("/Title", ""),
+                "author": reader.metadata.get("/Author", ""),
+                "creation_date": reader.metadata.get("/CreationDate", ""),
+                "producer": reader.metadata.get("/Producer", "")
+            }
             
-#             # If Camelot didn't find tables, try Tabula
-#             if not tables:
-#                 tabula_tables = tabula.read_pdf(
-#                     pdf_path,
-#                     pages='all',
-#                     multiple_tables=True
-#                 )
-                
-#                 for idx, df in enumerate(tabula_tables):
-#                     if not df.empty:
-#                         tables.append({
-#                             'extractor': 'tabula',
-#                             'table_number': idx + 1,
-#                             'data': df.to_dict('records'),
-#                             'headers': df.columns.tolist()
-#                         })
+            logger.info(f"Found {len(reader.pages)} pages in PDF")
+            for page_num, page in enumerate(reader.pages, 1):
+                logger.debug(f"Processing page {page_num}")
+                text = page.extract_text()
+                if text.strip():
+                    content.append({
+                        "content": text,
+                        "metadata": {
+                            "page_number": page_num,
+                            "category": "text"
+                        }
+                    })
+                else:
+                    logger.warning(f"Page {page_num} contains no text")
             
-#             return tables
+            logger.info(f"Successfully extracted text from {len(content)} pages")
+            return {
+                "metadata": metadata,
+                "content": content
+            }
             
-#         except Exception as e:
-#             logger.error(f"Error extracting tables: {str(e)}")
-#             return []
+        except Exception as e:
+            logger.error(f"Error extracting text from PDF: {type(e).__name__} - {str(e)}")
+            logger.exception("Full traceback:")
+            return {
+                "metadata": {},
+                "content": []
+            }
     
-#     async def extract_images(self, pdf_path: str, output_dir: str) -> List[Dict[str, Any]]:
-#         """
-#         Extract and analyze images from PDF
-#         Returns list of images with their metadata and OCR text
-#         """
-#         try:
-#             images = []
-#             output_path = Path(output_dir)
-#             output_path.mkdir(exist_ok=True)
-            
-#             # Convert PDF pages to images
-#             from pdf2image import convert_from_path
-#             pages = convert_from_path(pdf_path)
-            
-#             for page_num, page in enumerate(pages, start=1):
-#                 # Save page as image
-#                 page_path = output_path / f"page_{page_num}.png"
-#                 page.save(str(page_path))
+    async def extract_images(self, pdf_path: str, output_dir: str) -> List[Dict[str, Any]]:
+        
+        try:
+            logger.info(f"Starting image extraction from PDF: {pdf_path}")
+            if not os.path.exists(pdf_path):
+                raise FileNotFoundError(f"PDF file not found: {pdf_path}")
                 
-#                 # Extract images from page using OpenCV
-#                 cv_image = cv2.imread(str(page_path))
-#                 gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-#                 _, thresh = cv2.threshold(gray, 250, 255, cv2.THRESH_BINARY_INV)
-#                 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                
-#                 for idx, contour in enumerate(contours):
-#                     if cv2.contourArea(contour) > 1000:  # Filter small contours
-#                         x, y, w, h = cv2.boundingRect(contour)
-#                         image_region = cv_image[y:y+h, x:x+w]
-                        
-#                         # Save extracted image
-#                         image_path = output_path / f"page_{page_num}_image_{idx}.png"
-#                         cv2.imwrite(str(image_path), image_region)
-                        
-#                         # Open with PIL for analysis
-#                         pil_image = Image.open(image_path)
-                        
-#                         # Extract text from image using OCR
-#                         ocr_text = pytesseract.image_to_string(pil_image)
-                        
-#                         images.append({
-#                             'page_number': page_num,
-#                             'image_path': str(image_path),
-#                             'position': {'x': x, 'y': y, 'width': w, 'height': h},
-#                             'ocr_text': ocr_text.strip(),
-#                             'size': {
-#                                 'width': pil_image.width,
-#                                 'height': pil_image.height,
-#                                 'aspect_ratio': pil_image.width / pil_image.height
-#                             }
-#                         })
+            images = []
+            output_path = Path(output_dir)
+            output_path.mkdir(exist_ok=True)
             
-#             return images
+            reader = PdfReader(pdf_path)
             
-#         except Exception as e:
-#             logger.error(f"Error extracting images: {str(e)}")
-#             return []
+            for page_num, page in enumerate(reader.pages, 1):
+                logger.debug(f"Processing images on page {page_num}")
+                for image_file_object in page.images:
+                    try:
+                        # Save image
+                        image_path = output_path / f"page_{page_num}_{image_file_object.name}"
+                        with open(image_path, "wb") as image_file:
+                            image_file.write(image_file_object.data)
+                        
+                        # Analyze with PIL
+                        with Image.open(image_path) as img:
+                            width, height = img.size
+                            format = img.format
+                            mode = img.mode
+                        
+                        images.append({
+                            "page_number": page_num,
+                            "image_path": str(image_path),
+                            "name": image_file_object.name,
+                            "size": {
+                                "width": width,
+                                "height": height,
+                                "aspect_ratio": width / height if height else 0
+                            },
+                            "format": format,
+                            "mode": mode
+                        })
+                        logger.debug(f"Successfully extracted image: {image_file_object.name}")
+                        
+                    except Exception as img_error:
+                        logger.error(f"Error processing image on page {page_num}: {type(img_error).__name__} - {str(img_error)}")
+                        logger.exception("Full traceback:")
+                        continue
+            
+            logger.info(f"Successfully extracted {len(images)} images")
+            return images
+            
+        except Exception as e:
+            logger.error(f"Error extracting images from PDF: {type(e).__name__} - {str(e)}")
+            logger.exception("Full traceback:")
+            return []
     
-#     async def analyze_document_structure(self, pdf_path: str) -> Dict[str, Any]:
-#         """
-#         Analyze document structure including tables, images, and text layout
-#         """
-#         try:
-#             # Extract tables and images
-#             tables = await self.extract_tables(pdf_path)
-#             images = await self.extract_images(pdf_path, os.path.join(os.path.dirname(pdf_path), 'images'))
+    async def analyze_document_structure(self, pdf_path: str) -> Dict[str, Any]:
+        
+        try:
+            logger.info(f"Starting document structure analysis: {pdf_path}")
             
-#             # Analyze document structure
-#             structure = {
-#                 'tables': {
-#                     'count': len(tables),
-#                     'locations': [{'page': table['page']} for table in tables if 'page' in table],
-#                     'content': tables
-#                 },
-#                 'images': {
-#                     'count': len(images),
-#                     'locations': [img['position'] for img in images],
-#                     'content': images
-#                 },
-#                 'metadata': {
-#                     'has_tables': len(tables) > 0,
-#                     'has_images': len(images) > 0,
-#                     'table_pages': list(set(table['page'] for table in tables if 'page' in table)),
-#                     'image_pages': list(set(img['page_number'] for img in images))
-#                 }
-#             }
+            # Extract text and metadata
+            extraction_result = await self.extract_text_and_metadata(pdf_path)
             
-#             return structure
+            # Extract images
+            images = await self.extract_images(pdf_path, os.path.join(os.path.dirname(pdf_path), 'images'))
             
-#         except Exception as e:
-#             logger.error(f"Error analyzing document structure: {str(e)}")
-#             return {
-#                 'tables': {'count': 0, 'locations': [], 'content': []},
-#                 'images': {'count': 0, 'locations': [], 'content': []},
-#                 'metadata': {'has_tables': False, 'has_images': False}
-#             } 
+            # Analyze document structure
+            structure = {
+                "metadata": extraction_result["metadata"],
+                "content": extraction_result["content"],
+                "images": {
+                    "count": len(images),
+                    "items": images
+                }
+            }
+            
+            logger.info(f"Document analysis complete. Found {len(extraction_result['content'])} text sections and {len(images)} images")
+            return structure
+            
+        except Exception as e:
+            logger.error(f"Error analyzing document structure: {type(e).__name__} - {str(e)}")
+            logger.exception("Full traceback:")
+            return {
+                "metadata": {},
+                "content": [],
+                "images": {"count": 0, "items": []}
+            } 

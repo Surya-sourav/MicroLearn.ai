@@ -9,12 +9,6 @@ class DocumentParser:
     """Simple document parser using PyPDF2"""
     
     def extract_pdf_text(self, file_path: str) -> Dict[str, any]:
-        """
-        Extract text from PDF file using PyPDF2
-        Returns a dictionary containing:
-        - text: List of text elements
-        - metadata: Basic document metadata
-        """
         try:
             with open(file_path, 'rb') as file:
                 # Create PDF reader object
@@ -40,7 +34,7 @@ class DocumentParser:
                 return {
                     "content": content,
                     "metadata": metadata,
-                    "tables": []  # Simplified version doesn't extract tables
+                    "tables": []  
                 }
 
         except Exception as e:

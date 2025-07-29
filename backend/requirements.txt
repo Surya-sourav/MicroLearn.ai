@@ -29,5 +29,8 @@ openai
 langchain-core
 langchain-openai
 langchain-community
+langchain-pinecone
 numpy
 tenacity
+pinecone  
+tiktoken
