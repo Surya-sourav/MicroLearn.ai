@@ -44,7 +44,7 @@ services:
       --port 8000
       --reload
     environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/micronotes
+      - DATABASE_URL=postgresql://neondb_owner:npg_H0tBPrSl9EWX@ep-misty-scene-af4l72lf-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=your-secret-key-here
       - ALGORITHM=HS256
