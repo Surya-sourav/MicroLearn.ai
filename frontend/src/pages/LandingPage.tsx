@@ -229,9 +229,9 @@ const rawTestimonials = [
 
           <div className="flex flex-col min-h-[60vh] justify-center items-center">
             <h1 className="text-center text-7xl font-semibold uppercase leading-[90px] max-lg:text-4xl max-md:leading-snug">
-              <span>The Next Generation Learning</span>
+              <span>Micro.Ai</span>
               <br />
-              <span className="font-thin font-serif">___micro.ai___</span>
+              <span className="font-thin font-serif">Learn 100x</span>
             </h1>
 
             <p className="mt-8 max-w-[450px] text-lg max-lg:text-base p-2 text-center text-gray-800 dark:text-white max-lg:max-w-full">

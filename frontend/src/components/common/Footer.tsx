@@ -9,12 +9,12 @@ export default function Footer() {
   return (
     <>
       {/* Newsletter */}
-      <section className="flex w-full flex-col justify-center items-center gap-[10%] p-[5%] px-[10%] max-md:px-2">
+      {/* <section className="flex w-full flex-col justify-center items-center gap-[10%] p-[5%] px-[10%] max-md:px-2">
         <div  className="h-[40rem] flex items-center justify-center text-xs">
       <TextHoverEffect text="Micro.ai" />
     </div>
-      </section>
-
+      </section> */}
+     <TextHoverEffect  text="Micro.ai" />
       {/* Footer */}
       <footer className="mt-auto flex flex-col w-full gap-4 text-sm pt-[5%] pb-10 px-[10%] text-black dark:text-white max-md:flex-col">
         <div className="flex max-md:flex-col max-md:gap-6 gap-3 w-full justify-around">

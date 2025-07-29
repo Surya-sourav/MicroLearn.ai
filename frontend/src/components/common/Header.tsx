@@ -23,7 +23,7 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
             className="object-contain h-full w-full dark:invert"
           />
         </div>
-        <span className="uppercase text-base font-medium">Pixa</span>
+        <span className="uppercase text-base font-medium">M I C R O</span>
       </Link>
 
       <nav className="hidden lg:flex items-center gap-5 mx-auto">
