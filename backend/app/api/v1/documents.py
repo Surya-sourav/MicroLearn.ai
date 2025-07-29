@@ -10,7 +10,7 @@ from app.models.user import User
 from app.models.space import Space
 from app.models.document import Document, ContentType
 from app.schemas.document import Document as DocumentSchema
-from app.services.ingestion_service import IngestionService
+# from app.services.ingestion_service import IngestionService
 
 router = APIRouter()
 
@@ -70,9 +70,9 @@ async def upload_document(
     db.commit()
     db.refresh(document)
     
-    # Start background processing
-    ingestion_service = IngestionService()
-    await ingestion_service.process_document(document.id)
+    # Comment out background processing for now
+    # ingestion_service = IngestionService()
+    # await ingestion_service.process_document(document.id)
     
     return document
 
@@ -114,12 +114,12 @@ async def add_url(
     db.commit()
     db.refresh(document)
     
-    # Start background processing
-    ingestion_service = IngestionService()
-    if content_type == ContentType.YOUTUBE:
-        await ingestion_service.process_youtube_url(url, space_id)
-    else:
-        await ingestion_service.process_web_url(url, space_id)
+    # Comment out background processing for now
+    # ingestion_service = IngestionService()
+    # if content_type == ContentType.YOUTUBE:
+    #     await ingestion_service.process_youtube_url(url, space_id)
+    # else:
+    #     await ingestion_service.process_web_url(url, space_id)
     
     return document
 

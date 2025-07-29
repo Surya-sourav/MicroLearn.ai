@@ -1,50 +1,33 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-alembic==1.12.1
-psycopg2-binary==2.9.9
-pydantic[email]==2.5.0
-pydantic-settings==2.1.0
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.6
-celery==5.3.4
-redis==5.0.1
-httpx==0.25.2
-PyPDF2==3.0.1
-python-docx==1.1.0
-beautifulsoup4==4.12.2
-youtube-transcript-api==0.6.1
-openai==1.3.5
-pinecone-client==3.0.0
-python-dotenv==1.0.0
-pytest==7.4.3
-pytest-asyncio==0.21.1
+# Core dependencies
+fastapi
+python-jose[cryptography]
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic[email]
+pydantic-settings
+python-multipart
 
-# Document processing
-unstructured>=0.12.0
-unstructured[pdf]>=0.12.0
-pdf2image>=1.16.3
-pytesseract>=0.3.10
-python-magic>=0.4.27
+# Authentication
+passlib[bcrypt]
 
-# LangChain and related
-langchain>=0.1.0
-langchain-core>=0.1.0
-langchain-openai>=0.0.5
-langchain-community>=0.0.5
+# Task Queue
+celery
+redis
 
-# Vector store and embeddings
-numpy>=1.26.0
-pandas>=2.2.0
-scikit-learn>=1.4.0
+# HTTP Client
+httpx
 
-# Table extraction
-camelot-py>=0.11.0
-tabula-py>=2.9.0
-opencv-python>=4.9.0.80
+# Document Processing
+PyPDF2
+python-docx
+pillow
+pandas
 
-# ML/DL tools
-torch>=2.2.0
-transformers>=4.37.0
-sentence-transformers>=2.3.0
+# AI/ML Dependencies
+openai
+langchain-core
+langchain-openai
+langchain-community
+numpy
+tenacity

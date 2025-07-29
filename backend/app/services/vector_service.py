@@ -1,26 +1,17 @@
-import pinecone
 from typing import List, Dict, Any, Optional
 from app.core.config import settings
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.embeddings import Embeddings
-from langchain_community.vectorstores import Pinecone as LangchainPinecone
+from langchain_community.vectorstores import Pinecone
 import asyncio
 from tenacity import retry, stop_after_attempt, wait_exponential
 import logging
-import json
 import uuid
 
 logger = logging.getLogger(__name__)
 
 class VectorService:
     def __init__(self):
-        # Initialize Pinecone
-        pinecone.init(
-            api_key=settings.PINECONE_API_KEY,
-            environment=settings.PINECONE_ENVIRONMENT
-        )
-        self.index = pinecone.Index(settings.PINECONE_INDEX_NAME)
-        
         # Initialize embeddings
         self.embeddings = OpenAIEmbeddings(
             model="text-embedding-ada-002",
@@ -28,10 +19,11 @@ class VectorService:
         )
         
         # Initialize LangChain vectorstore
-        self.vectorstore = LangchainPinecone(
-            index=self.index,
-            embedding_function=self.embeddings,
-            text_key="text"
+        self.vectorstore = Pinecone.from_existing_index(
+            index_name=settings.PINECONE_INDEX_NAME,
+            embedding=self.embeddings,
+            text_key="text",
+            namespace=None  # Will be set per operation
         )
     
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
@@ -43,17 +35,15 @@ class VectorService:
     ) -> Dict[str, Any]:
         """Store text embeddings in vector database"""
         try:
-            all_vectors = []
             chunks_metadata = []
+            texts = []
+            metadatas = []
             
             # Process each content element
             for element in content:
                 element_text = element["content"]
                 if not element_text.strip():
                     continue
-                
-                # Generate embeddings
-                embedding = await self.embeddings.aembed_query(element_text)
                 
                 # Prepare metadata
                 metadata = {
@@ -70,24 +60,18 @@ class VectorService:
                     if v is not None
                 }
                 
-                vector_id = f"{namespace}_{len(all_vectors)}_{hash(element_text[:50])}"
-                
-                all_vectors.append({
-                    "id": vector_id,
-                    "values": embedding,
-                    "metadata": metadata
-                })
+                texts.append(element_text)
+                metadatas.append(metadata)
                 chunks_metadata.append(metadata)
             
-            # Batch upsert to Pinecone
-            batch_size = 100
-            for i in range(0, len(all_vectors), batch_size):
-                batch = all_vectors[i:i + batch_size]
+            # Batch add to Pinecone through LangChain
+            if texts:
+                self.vectorstore._namespace = namespace
                 await asyncio.sleep(0.5)  # Rate limiting
-                self.index.upsert(vectors=batch, namespace=namespace)
+                self.vectorstore.add_texts(texts=texts, metadatas=metadatas)
             
             return {
-                "total_vectors": len(all_vectors),
+                "total_vectors": len(texts),
                 "chunks_metadata": chunks_metadata
             }
             
@@ -104,27 +88,22 @@ class VectorService:
     ) -> List[Dict[str, Any]]:
         """Search for similar documents"""
         try:
-            # Generate query embedding
-            query_embedding = await self.embeddings.aembed_query(query)
-            
-            # Search in Pinecone
-            results = self.index.query(
-                vector=query_embedding,
-                top_k=top_k,
-                namespace=namespace,
-                include_metadata=True,
+            self.vectorstore._namespace = namespace
+            results = self.vectorstore.similarity_search_with_score(
+                query=query,
+                k=top_k,
                 filter=filter
             )
             
             # Process results
             search_results = []
-            for match in results.matches:
-                if match.metadata:
+            for doc, score in results:
+                if doc.metadata:
                     search_results.append({
-                        "text": match.metadata.get("text", ""),
-                        "score": match.score,
+                        "text": doc.page_content,
+                        "score": score,
                         "metadata": {
-                            k: v for k, v in match.metadata.items()
+                            k: v for k, v in doc.metadata.items()
                             if k != "text"
                         }
                     })
@@ -142,10 +121,11 @@ class VectorService:
     ):
         """Delete vectors by IDs or entire namespace"""
         try:
+            self.vectorstore._namespace = namespace
             if ids:
-                self.index.delete(ids=ids, namespace=namespace)
+                self.vectorstore.delete(ids=ids)
             else:
-                self.index.delete(delete_all=True, namespace=namespace)
+                self.vectorstore.delete_namespace(namespace)
         except Exception as e:
             logger.error(f"Error deleting vectors: {str(e)}")
             raise
