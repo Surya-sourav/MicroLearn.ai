@@ -22,4 +22,4 @@ class Space(Base):
     owner = relationship("User", back_populates="spaces")
     flashcards = relationship("Flashcard", back_populates="space", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="space", cascade="all, delete-orphan")
-    chat_sessions = relationship("ChatSession", back_populates="space")
+    chat_sessions = relationship("ChatSession", back_populates="space", cascade="all, delete-orphan")

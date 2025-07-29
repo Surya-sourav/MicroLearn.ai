@@ -97,17 +97,19 @@ async def add_url(
         )
     
     # Determine content type
-    if 'youtube.com' in url or 'youtu.be' in url:
+    if "youtube.com" in url or "youtu.be" in url:
         content_type = ContentType.YOUTUBE
+        title = "YouTube Video"  # You might want to fetch actual title
     else:
-        content_type = ContentType.URL
+        content_type = ContentType.WEB_PAGE
+        title = "Web Page"  # You might want to fetch actual title
     
     # Create document record
     document = Document(
         title=title,
         content_type=content_type,
-        original_url=url,
-        space_id=space_id
+        space_id=space_id,
+        file_path=url,  # Store URL as file_path for web content
     )
     
     db.add(document)

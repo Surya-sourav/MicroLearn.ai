@@ -3,12 +3,16 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum, JSON, Integer
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 import uuid
 
 class ContentType(str, Enum):
     PDF = "pdf"
     DOCX = "docx"
+    YOUTUBE = "youtube"
+    URL = "url"
+    WEB_PAGE = "web_page"
 
 class ProcessingStatus(str, Enum):
     PENDING = "pending"
@@ -45,6 +49,8 @@ class Document(Base):
     
     # Relationships
     space_id = Column(UUID(as_uuid=True), ForeignKey("spaces.id"), nullable=False)
+    space = relationship("Space", back_populates="documents")
+    generated_flashcards = relationship("Flashcard", back_populates="source_document", cascade="all, delete-orphan")
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -88,4 +94,4 @@ class Document(Base):
             "processed_at": self.processed_at.isoformat() if self.processed_at else None,
             "has_tables": self.has_tables,
             "has_images": self.has_images
-        } 
+        }

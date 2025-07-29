@@ -4,7 +4,7 @@ import os
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/micronotes"
+    DATABASE_URL: str = "postgresql://neondb_owner:npg_H0tBPrSl9EWX@ep-misty-scene-af4l72lf-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
