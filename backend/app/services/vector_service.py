@@ -137,12 +137,16 @@ class VectorService:
     ) -> List[Dict[str, Any]]:
         """Search for similar documents"""
         try:
+            # Set namespace and perform search
             self.vectorstore._namespace = namespace
             results = self.vectorstore.similarity_search_with_score(
                 query=query,
                 k=top_k,
-                filter=filter
+                filter=filter,
+                namespace=namespace
             )
+            
+            logger.info(f"Raw results count: {len(results)}")
             
             # Process results
             search_results = []
@@ -170,11 +174,13 @@ class VectorService:
     ):
         """Delete vectors by IDs or entire namespace"""
         try:
-            self.vectorstore._namespace = namespace
             if ids:
-                self.vectorstore.delete(ids=ids)
+                # Delete specific vectors
+                self.index.delete(ids=ids, namespace=namespace)
             else:
-                self.vectorstore.delete_namespace(namespace)
+                # Delete all vectors in namespace
+                self.index.delete(delete_all=True, namespace=namespace)
+            logger.info(f"Successfully deleted vectors in namespace: {namespace}")
         except Exception as e:
             logger.error(f"Error deleting vectors: {str(e)}")
             raise

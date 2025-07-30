@@ -18,7 +18,11 @@ class Settings(BaseSettings):
     # CORS
     ALLOWED_HOSTS: List[str] = ["http://localhost:3000",  "http://localhost:5173",  "http://127.0.0.1:3000"]
     
-    # OpenAI
+    # Groq - Fast Llama inference
+    GROQ_API_KEY: str = "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"
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"  # Latest Llama model
+    
+    # OpenAI - Keep for compatibility (not used)
     OPENAI_API_KEY: str = ""
     
     # Pinecone

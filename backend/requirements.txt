@@ -25,7 +25,7 @@ pillow
 pandas
 
 # AI/ML Dependencies
-openai
+groq
 langchain-core
 langchain-openai
 langchain-community
