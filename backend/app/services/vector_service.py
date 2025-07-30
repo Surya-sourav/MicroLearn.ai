@@ -81,8 +81,8 @@ class VectorService:
             
             # Process each content element
             for element in content:
-                element_text = element["content"]
-                if not element_text.strip():
+                element_text = element.get("content")
+                if not element_text or not element_text.strip():
                     continue
                 
                 # Prepare metadata
@@ -106,15 +106,22 @@ class VectorService:
                 chunks_metadata.append(metadata)
             
             # Batch add to Pinecone through LangChain
+            vector_ids = []
             if texts:
                 logger.info(f"Adding {len(texts)} chunks to vector store")
                 await asyncio.sleep(0.5)  # Rate limiting
-                self.vectorstore.add_texts(texts=texts, metadatas=metadatas)
-                logger.info("Successfully stored embeddings")
+                vector_ids = self.vectorstore.add_texts(texts=texts, metadatas=metadatas)
+                logger.info(f"Successfully stored embeddings with IDs: {len(vector_ids) if vector_ids else 0}")
+            
+            # Add vector IDs to chunks metadata
+            for i, chunk_meta in enumerate(chunks_metadata):
+                if i < len(vector_ids):
+                    chunk_meta["vector_id"] = vector_ids[i]
             
             return {
                 "total_vectors": len(texts),
-                "chunks_metadata": chunks_metadata
+                "chunks_metadata": chunks_metadata,
+                "vector_ids": vector_ids
             }
             
         except Exception as e:

@@ -164,18 +164,20 @@ class IngestionService:
                     document.vector_ids = []
                     document.chunk_count = 0
                     for result in vector_results:
-                        if result and "chunks_metadata" in result:
+                        if result and "vector_ids" in result:
+                            # Use the vector_ids from the result
                             document.vector_ids.extend([
-                                str(meta.get("id", "")) for meta in result["chunks_metadata"]
+                                str(vid) for vid in result["vector_ids"] if vid
                             ])
                             document.chunk_count += result["total_vectors"]
                     
                     # Calculate word count from all chunks
                     document.word_count = sum(
-                        len(chunk["content"].split())
+                        len(chunk.get("content", "").split())
                         for result in vector_results
                         if result and "chunks_metadata" in result
                         for chunk in result["chunks_metadata"]
+                        if chunk.get("content")
                     )
                     
                     # Mark as completed
