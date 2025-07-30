@@ -56,7 +56,7 @@ export default function LoginPage() {
 
         <Card className="bg-white dark:bg-[#16171A] shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign In to Pixa</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Sign In to  M I C R O</CardTitle>
             <p className="text-gray-600 dark:text-gray-400 text-center">
               Welcome back! Please sign in to your account.
             </p>
@@ -124,9 +124,9 @@ export default function LoginPage() {
                     Remember me
                   </Label>
                 </div>
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                {/* <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

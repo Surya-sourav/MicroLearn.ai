@@ -55,7 +55,7 @@ export default function SignupForm({ onClose }: SignupFormProps) {
               </Button>
             )}
           </div>
-          <p className="text-gray-600 dark:text-gray-400">Join Pixa and start your AI journey today.</p>
+          <p className="text-gray-600 dark:text-gray-400">Join M I C R O and start your AI Learning today.</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
