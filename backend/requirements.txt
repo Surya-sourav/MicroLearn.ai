@@ -25,9 +25,12 @@ pillow
 pandas
 
 # AI/ML Dependencies
-openai
+groq
 langchain-core
 langchain-openai
 langchain-community
+langchain-pinecone
 numpy
 tenacity
+pinecone  
+tiktoken
