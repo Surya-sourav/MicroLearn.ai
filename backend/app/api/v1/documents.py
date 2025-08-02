@@ -156,12 +156,12 @@ async def add_url(
     db.commit()
     db.refresh(document)
     
-    # Comment out background processing for now
-    # ingestion_service = IngestionService()
-    # if content_type == ContentType.YOUTUBE:
-    #     await ingestion_service.process_youtube_url(url, space_id)
-    # else:
-    #     await ingestion_service.process_web_url(url, space_id)
+    # Process URL in background
+    ingestion_service = IngestionService()
+    if content_type == ContentType.YOUTUBE:
+        await ingestion_service.process_youtube_url(url, space_id)
+    else:
+        await ingestion_service.process_web_url(url, space_id)
     
     return document
 

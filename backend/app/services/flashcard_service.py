@@ -3,7 +3,7 @@ from typing import List
 import uuid
 from datetime import datetime, timedelta
 from app.core.database import SessionLocal
-from app.models.flashcard import Flashcard
+from app.models.flashcard import Flashcard, DifficultyLevel
 from app.models.space import Space
 from app.models.document import Document
 from app.services.llm_service import LLMService
@@ -23,31 +23,106 @@ class FlashcardService:
             if not space:
                 return []
             
-            # Get context from vector database
-            context_docs = await self.vector_service.similarity_search(
-                f"Generate flashcards for {space.subject}",
-                space.vector_namespace,
-                top_k=10
-            )
+            # Get context from vector database if available
+            context_content = ""
+            if self.vector_service.pinecone_available and space.vector_namespace:
+                context_docs = await self.vector_service.similarity_search(
+                    f"Generate flashcards for {space.subject}",
+                    space.vector_namespace,
+                    top_k=10
+                )
+                
+                if context_docs:
+                    # Combine context
+                    context_content = "\n\n".join([doc.get("text", "") for doc in context_docs])
             
-            if not context_docs:
+            # If no vector context, try to get from documents
+            if not context_content:
+                documents = db.query(Document).filter(Document.space_id == space_id).all()
+                if documents:
+                    context_content = "\n\n".join([doc.content_preview or "" for doc in documents if doc.content_preview])
+            
+            if not context_content:
                 return []
             
-            # Combine context
-            combined_content = "\n\n".join(context_docs)
-            
             # Generate flashcards using LLM
-            flashcards_data = await self.llm_service.generate_flashcards(combined_content, count)
+            flashcards_data = await self.llm_service.generate_flashcards(context_content, count)
             
             # Create flashcard records
             created_flashcards = []
             for flashcard_data in flashcards_data:
+                # Validate and normalize difficulty
+                difficulty_str = flashcard_data.get('difficulty', 'medium')
+                if isinstance(difficulty_str, str):
+                    difficulty_str = difficulty_str.lower().strip()
+                    if difficulty_str == 'easy':
+                        difficulty = DifficultyLevel.EASY
+                    elif difficulty_str == 'medium':
+                        difficulty = DifficultyLevel.MEDIUM
+                    elif difficulty_str == 'hard':
+                        difficulty = DifficultyLevel.HARD
+                    else:
+                        difficulty = DifficultyLevel.MEDIUM  # Default to medium if invalid
+                else:
+                    difficulty = DifficultyLevel.MEDIUM
+                
                 flashcard = Flashcard(
                     question=flashcard_data.get('question', ''),
                     answer=flashcard_data.get('answer', ''),
-                    difficulty=flashcard_data.get('difficulty', 'medium'),
+                    difficulty=difficulty,
                     tags=flashcard_data.get('tags', []),
                     space_id=space_id
+                )
+                db.add(flashcard)
+                created_flashcards.append(flashcard)
+            
+            db.commit()
+            return created_flashcards
+            
+        finally:
+            db.close()
+    
+    async def generate_flashcards_for_document(self, document_id: uuid.UUID, count: int = 10) -> List[Flashcard]:
+        """Generate flashcards for a specific document"""
+        db = SessionLocal()
+        try:
+            # Get document
+            document = db.query(Document).filter(Document.id == document_id).first()
+            if not document:
+                return []
+            
+            # Get document content
+            if not document.content_preview:
+                return []
+            
+            # Generate flashcards using LLM
+            flashcards_data = await self.llm_service.generate_flashcards(document.content_preview, count)
+            
+            # Create flashcard records
+            created_flashcards = []
+            for flashcard_data in flashcards_data:
+                # Validate and normalize difficulty
+                difficulty_str = flashcard_data.get('difficulty', 'medium')
+                if isinstance(difficulty_str, str):
+                    difficulty_str = difficulty_str.lower().strip()
+                    if difficulty_str == 'easy':
+                        difficulty = DifficultyLevel.EASY
+                    elif difficulty_str == 'medium':
+                        difficulty = DifficultyLevel.MEDIUM
+                    elif difficulty_str == 'hard':
+                        difficulty = DifficultyLevel.HARD
+                    else:
+                        difficulty = DifficultyLevel.MEDIUM  # Default to medium if invalid
+                else:
+                    difficulty = DifficultyLevel.MEDIUM
+                
+                flashcard = Flashcard(
+                    question=flashcard_data.get('question', ''),
+                    answer=flashcard_data.get('answer', ''),
+                    difficulty=difficulty,
+                    tags=flashcard_data.get('tags', []),
+                    space_id=document.space_id,
+                    source_document_id=document_id
                 )
                 db.add(flashcard)
                 created_flashcards.append(flashcard)

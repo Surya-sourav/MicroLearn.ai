@@ -72,37 +72,40 @@ class ContentExtractionService:
             
             for page_num, page in enumerate(reader.pages, 1):
                 logger.debug(f"Processing images on page {page_num}")
-                for image_file_object in page.images:
-                    try:
-                        # Save image
-                        image_path = output_path / f"page_{page_num}_{image_file_object.name}"
-                        with open(image_path, "wb") as image_file:
-                            image_file.write(image_file_object.data)
-                        
-                        # Analyze with PIL
-                        with Image.open(image_path) as img:
-                            width, height = img.size
-                            format = img.format
-                            mode = img.mode
-                        
-                        images.append({
-                            "page_number": page_num,
-                            "image_path": str(image_path),
-                            "name": image_file_object.name,
-                            "size": {
-                                "width": width,
-                                "height": height,
-                                "aspect_ratio": width / height if height else 0
-                            },
-                            "format": format,
-                            "mode": mode
-                        })
-                        logger.debug(f"Successfully extracted image: {image_file_object.name}")
-                        
-                    except Exception as img_error:
-                        logger.error(f"Error processing image on page {page_num}: {type(img_error).__name__} - {str(img_error)}")
-                        logger.exception("Full traceback:")
-                        continue
+                try:
+                    for image_file_object in page.images:
+                        try:
+                            # Save image
+                            image_path = output_path / f"page_{page_num}_{image_file_object.name}"
+                            with open(image_path, "wb") as image_file:
+                                image_file.write(image_file_object.data)
+                            
+                            # Analyze with PIL
+                            with Image.open(image_path) as img:
+                                width, height = img.size
+                                format = img.format
+                                mode = img.mode
+                            
+                            images.append({
+                                "page_number": page_num,
+                                "image_path": str(image_path),
+                                "name": image_file_object.name,
+                                "size": {
+                                    "width": width,
+                                    "height": height,
+                                    "aspect_ratio": width / height if height else 0
+                                },
+                                "format": format,
+                                "mode": mode
+                            })
+                            logger.debug(f"Successfully extracted image: {image_file_object.name}")
+                            
+                        except Exception as img_error:
+                            logger.error(f"Error processing image on page {page_num}: {type(img_error).__name__} - {str(img_error)}")
+                            continue
+                except Exception as page_error:
+                    logger.error(f"Error processing page {page_num} images: {type(page_error).__name__} - {str(page_error)}")
+                    continue
             
             logger.info(f"Successfully extracted {len(images)} images")
             return images
@@ -117,23 +120,23 @@ class ContentExtractionService:
         try:
             logger.info(f"Starting document structure analysis: {pdf_path}")
             
-            # Extract text and metadata
+            # Extract text and metadata only (skip images)
             extraction_result = await self.extract_text_and_metadata(pdf_path)
             
-            # Extract images
-            images = await self.extract_images(pdf_path, os.path.join(os.path.dirname(pdf_path), 'images'))
+            # Skip image extraction to focus on text content only
+            logger.info("Skipping image extraction - focusing on text content only")
             
             # Analyze document structure
             structure = {
                 "metadata": extraction_result["metadata"],
                 "content": extraction_result["content"],
                 "images": {
-                    "count": len(images),
-                    "items": images
+                    "count": 0,
+                    "items": []
                 }
             }
             
-            logger.info(f"Document analysis complete. Found {len(extraction_result['content'])} text sections and {len(images)} images")
+            logger.info(f"Document analysis complete. Found {len(extraction_result['content'])} text sections (images skipped)")
             return structure
             
         except Exception as e:

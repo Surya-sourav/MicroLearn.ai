@@ -34,3 +34,8 @@ numpy
 tenacity
 pinecone  
 tiktoken
+
+# Web Scraping and Content Extraction
+youtube-transcript-api
+beautifulsoup4
+requests

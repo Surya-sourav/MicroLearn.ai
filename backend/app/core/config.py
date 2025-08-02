@@ -4,7 +4,7 @@ import os
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://neondb_owner:npg_H0tBPrSl9EWX@ep-misty-scene-af4l72lf-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    DATABASE_URL: str = "postgresql://postgres:password@postgres:5432/microlearn"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     
     # Pinecone
     PINECONE_API_KEY: str = ""
-    PINECONE_ENVIRONMENT: str = ""
+    PINECONE_ENVIRONMENT: str = "us-east-1-aws"
     PINECONE_INDEX_NAME: str = "micronotes"
     
     # File Upload

@@ -34,31 +34,85 @@ class LLMService:
             raise Exception(f"Failed to get response from Groq: {str(e)}")
     
     async def generate_flashcards(self, content: str, count: int = 10) -> List[dict]:
-        """Generate flashcards from content using LLM with fallback"""
+        """Generate micro notes flashcards from content using LLM"""
         prompt = f"""
-        Create {count} flashcards from the following content. Each flashcard should have:
-        - A clear, specific question
-        - A comprehensive answer
-        - Appropriate difficulty level (easy, medium, hard)
-        - Relevant tags
+        Create {count} micro notes (flashcards) from the following content. Each micro note should contain:
+        - A key concept or important point in concise form (micro note)
+        - A brief explanation or context for better understanding
+        - Difficulty level: ONLY use "easy", "medium", or "hard" (no other values)
+        - Relevant tags as an array of strings
         
         Content:
-        {content}
+        {content[:2000]}  # Limit content length
         
-        Return the flashcards in JSON format as an array of objects with keys: question, answer, difficulty, tags.
+        IMPORTANT: Return ONLY a valid JSON array. Each object must have exactly these keys: question, answer, difficulty, tags.
+        The "question" field should contain the micro note/key concept.
+        The "answer" field should contain the explanation or context.
+        The difficulty field must be exactly one of: "easy", "medium", "hard" (lowercase).
+        
+        These are NOT questions - they are micro notes for revision and retention.
+        
+        Example format:
+        [
+            {{
+                "question": "Neural Networks",
+                "answer": "Computing systems inspired by biological neural networks, consisting of interconnected nodes that process information.",
+                "difficulty": "medium",
+                "tags": ["neural networks", "ai", "machine learning"]
+            }}
+        ]
+        
+        Do not include any text before or after the JSON array. Ensure all difficulty values are complete words.
         """
         
         messages = [
-            {"role": "system", "content": "You are an expert educator creating high-quality flashcards for students."},
+            {"role": "system", "content": "You are an expert educator creating high-quality flashcards. Always respond with valid JSON only."},
             {"role": "user", "content": prompt}
         ]
         
         try:
             response_text = await self._complete_chat(messages)
+            
+            # Clean the response text
+            response_text = response_text.strip()
+            
+            # Try to extract JSON if there's extra text
+            if response_text.startswith('```json'):
+                response_text = response_text[7:]
+            if response_text.endswith('```'):
+                response_text = response_text[:-3]
+            response_text = response_text.strip()
+            
             flashcards_data = json.loads(response_text)
-            return flashcards_data
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse JSON response for flashcards")
+            
+            # Validate the structure
+            if not isinstance(flashcards_data, list):
+                logger.warning("Response is not a list, creating empty result")
+                return []
+            
+            # Validate each flashcard
+            valid_flashcards = []
+            for i, card in enumerate(flashcards_data):
+                if isinstance(card, dict) and all(key in card for key in ['question', 'answer', 'difficulty', 'tags']):
+                    # Validate difficulty value
+                    difficulty = card.get('difficulty', '').lower().strip()
+                    if difficulty in ['easy', 'medium', 'hard']:
+                        # Ensure difficulty is properly set
+                        card['difficulty'] = difficulty
+                        valid_flashcards.append(card)
+                    else:
+                        logger.warning(f"Invalid difficulty '{difficulty}' in flashcard {i}, defaulting to 'medium'")
+                        card['difficulty'] = 'medium'
+                        valid_flashcards.append(card)
+                else:
+                    logger.warning(f"Invalid flashcard structure at index {i}: {card}")
+            
+            logger.info(f"Successfully generated {len(valid_flashcards)} valid flashcards")
+            return valid_flashcards
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response for flashcards: {e}")
+            logger.error(f"Response text: {response_text[:500]}...")
             return []
         except Exception as e:
             logger.error(f"Error generating flashcards: {str(e)}")
