@@ -44,7 +44,7 @@ export function useChat(spaceId?: string) {
     }
   }
 
-  const sendMessage = async (content: string, chatType: "general" | "tutor" | "quiz" = "general") => {
+  const sendMessage = async (content: string, _chatType: "general" | "tutor" | "quiz" = "general") => {
     if (!spaceId) return
 
     const userMessage: Message = {

@@ -4,6 +4,8 @@ interface Space {
   id: string
   name: string
   description?: string
+  subject: string
+  color?: string
   created_at: string
   updated_at: string
   document_count?: number
@@ -45,7 +47,7 @@ export const spacesService = {
     return res.json()
   },
 
-  async createSpace(spaceData: { name: string; description?: string }): Promise<Space> {
+  async createSpace(spaceData: { name: string; description?: string; subject: string; color?: string }): Promise<Space> {
     const res = await fetch(`${API_BASE_URL}/spaces/`, {
       method: "POST",
       headers: getAuthHeaders(),
@@ -58,7 +60,7 @@ export const spacesService = {
     return res.json()
   },
 
-  async updateSpace(spaceId: string, updates: { name?: string; description?: string }): Promise<Space> {
+  async updateSpace(spaceId: string, updates: { name?: string; description?: string; subject?: string; color?: string }): Promise<Space> {
     const res = await fetch(`${API_BASE_URL}/spaces/${spaceId}`, {
       method: "PUT",
       headers: getAuthHeaders(),

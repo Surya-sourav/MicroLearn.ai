@@ -3,6 +3,8 @@ import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import DashboardPage from "./pages/DashboardPage"
+import SpaceDetail from "./pages/SpaceDetail"
+import AuthGuard from "./components/auth/AuthGuard"
 import "./App.css"
 
 function App() {
@@ -16,7 +18,24 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Protected Routes */}
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <AuthGuard>
+                <DashboardPage />
+              </AuthGuard>
+            } 
+          />
+
+          {/* Space Routes */}
+          <Route 
+            path="/spaces/:spaceId" 
+            element={
+              <AuthGuard>
+                <SpaceDetail />
+              </AuthGuard>
+            } 
+          />
 
           {/* Redirect unknown routes to landing page */}
           <Route path="*" element={<Navigate to="/" replace />} />

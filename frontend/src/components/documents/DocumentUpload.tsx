@@ -62,7 +62,7 @@ export function DocumentUpload({ spaceId, onClose, onUploadComplete }: DocumentU
 
   const handleUrlUpload = async (url: string) => {
     try {
-      await uploadFromUrl(url, spaceId)
+      await uploadFromUrl(url, spaceId!)
       onUploadComplete()
     } catch (err) {
       console.error("URL upload failed:", err)

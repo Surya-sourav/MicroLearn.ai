@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input"
@@ -17,8 +17,18 @@ export default function LoginPage() {
     password: "",
     rememberMe: false,
   })
-  const { login, loading, error } = useAuth()
+  const { login, loading, error, user } = useAuth()
   const [success, setSuccess] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      const from = location.state?.from?.pathname || "/dashboard"
+      navigate(from, { replace: true })
+    }
+  }, [user, navigate, location])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,6 +38,11 @@ export default function LoginPage() {
         password: formData.password,
       })
       setSuccess(true)
+      // Redirect after successful login
+      setTimeout(() => {
+        const from = location.state?.from?.pathname || "/dashboard"
+        navigate(from, { replace: true })
+      }, 1000)
     } catch (err) {
       // error handled by hook
     }

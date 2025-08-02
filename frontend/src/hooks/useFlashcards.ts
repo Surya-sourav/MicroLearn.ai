@@ -8,32 +8,21 @@ interface Flashcard {
   question: string
   answer: string
   difficulty: "easy" | "medium" | "hard"
-  spaceId: string
+  space_id: string
   created_at: string
   last_reviewed?: string
   review_count: number
   correct_count: number
 }
 
-interface FlashcardSet {
-  id: string
-  title: string
-  description?: string
-  flashcards: Flashcard[]
-  spaceId: string
-  created_at: string
-}
-
 export function useFlashcards(spaceId?: string) {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([])
-  const [flashcardSets, setFlashcardSets] = useState<FlashcardSet[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (spaceId) {
       loadFlashcards()
-      loadFlashcardSets()
     }
   }, [spaceId])
 
@@ -52,16 +41,7 @@ export function useFlashcards(spaceId?: string) {
     }
   }
 
-  const loadFlashcardSets = async () => {
-    if (!spaceId) return
 
-    try {
-      const sets = await flashcardsService.getFlashcardSets(spaceId)
-      setFlashcardSets(sets)
-    } catch (err: any) {
-      setError(err.message)
-    }
-  }
 
   const createFlashcard = async (
     flashcardData: Omit<Flashcard, "id" | "created_at" | "review_count" | "correct_count">,
@@ -69,7 +49,7 @@ export function useFlashcards(spaceId?: string) {
     try {
       setLoading(true)
       setError(null)
-      const newFlashcard = await flashcardsService.createFlashcard(flashcardData)
+      const newFlashcard = await flashcardsService.createFlashcard(spaceId!, flashcardData)
       setFlashcards((prev) => [newFlashcard, ...prev])
       return newFlashcard
     } catch (err: any) {
@@ -84,9 +64,9 @@ export function useFlashcards(spaceId?: string) {
     try {
       setLoading(true)
       setError(null)
-      const generatedCards = await flashcardsService.generateFlashcards(documentId, count)
-      setFlashcards((prev) => [...generatedCards, ...prev])
-      return generatedCards
+      const result = await flashcardsService.generateFlashcards(spaceId!, documentId, count)
+      await loadFlashcards() // Refresh the list
+      return result
     } catch (err: any) {
       setError(err.message)
       throw err
@@ -126,24 +106,10 @@ export function useFlashcards(spaceId?: string) {
     }
   }
 
-  const createFlashcardSet = async (setData: Omit<FlashcardSet, "id" | "created_at" | "flashcards">) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const newSet = await flashcardsService.createFlashcardSet(setData)
-      setFlashcardSets((prev) => [newSet, ...prev])
-      return newSet
-    } catch (err: any) {
-      setError(err.message)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+
 
   return {
     flashcards,
-    flashcardSets,
     loading,
     error,
     createFlashcard,
@@ -151,8 +117,6 @@ export function useFlashcards(spaceId?: string) {
     updateFlashcard,
     deleteFlashcard,
     reviewFlashcard,
-    createFlashcardSet,
     refreshFlashcards: loadFlashcards,
-    refreshFlashcardSets: loadFlashcardSets,
   }
 }

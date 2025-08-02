@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { registerUser, loginUser } from "../services/auth";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check for existing token on mount
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      // For now, we'll just set a basic user object
+      // In a real app, you'd validate the token with the backend
+      setUser({ token } as any);
+    }
+    setLoading(false);
+  }, []);
 
   const register = async (data: { email: string; username: string; password: string }) => {
     setLoading(true);
@@ -42,7 +53,11 @@ export function useAuth() {
     localStorage.removeItem("access_token");
   };
 
-  return { user, loading, error, register, login, logout };
+  const isAuthenticated = () => {
+    return !!localStorage.getItem("access_token");
+  };
+
+  return { user, loading, error, register, login, logout, isAuthenticated };
 }
 
 export default useAuth;

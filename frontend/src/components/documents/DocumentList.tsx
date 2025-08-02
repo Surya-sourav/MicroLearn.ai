@@ -15,19 +15,24 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ spaceId }: DocumentListProps) {
-  const { documents, loading, deleteDocument, refreshDocuments } = useDocuments(spaceId)
+  const { documents, loading, deleteDocument, refreshDocuments, error } = useDocuments(spaceId)
   const [searchTerm, setSearchTerm] = useState("")
   const [showUpload, setShowUpload] = useState(false)
+
+  // Debug logging
+  console.log("DocumentList render:", { spaceId, documents, loading, error })
 
   const filteredDocuments = documents.filter(
     (doc) =>
       doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.content?.toLowerCase().includes(searchTerm.toLowerCase()),
+      doc.content_preview?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes("pdf")) return <FileText className="w-4 h-4" />
-    if (fileType.includes("image")) return <FileIcon className="w-4 h-4" />
+  const getFileIcon = (contentType: string) => {
+    if (contentType === "pdf") return <FileText className="w-4 h-4" />
+    if (contentType === "docx") return <FileText className="w-4 h-4" />
+    if (contentType === "youtube") return <FileIcon className="w-4 h-4" />
+    if (contentType === "web_page" || contentType === "url") return <FileIcon className="w-4 h-4" />
     return <FileText className="w-4 h-4" />
   }
 
@@ -105,7 +110,7 @@ export function DocumentList({ spaceId }: DocumentListProps) {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    {getFileIcon(document.file_type)}
+                    {getFileIcon(document.content_type)}
                     <CardTitle className="text-sm font-medium truncate">{document.title}</CardTitle>
                   </div>
                   <ProcessingStatus status={document.processing_status} />
@@ -114,9 +119,14 @@ export function DocumentList({ spaceId }: DocumentListProps) {
 
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  {document.content && (
+                  {document.content_preview && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-                      {document.content.substring(0, 150)}...
+                      {document.content_preview.substring(0, 150)}...
+                    </p>
+                  )}
+                  {document.error_message && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      Error: {document.error_message}
                     </p>
                   )}
 
@@ -125,7 +135,7 @@ export function DocumentList({ spaceId }: DocumentListProps) {
                       <Calendar className="w-3 h-3" />
                       {new Date(document.created_at).toLocaleDateString()}
                     </div>
-                    {document.file_size && <span>{formatFileSize(document.file_size)}</span>}
+                    <span className="capitalize">{document.content_type}</span>
                   </div>
 
                   <div className="flex items-center gap-2 pt-2">

@@ -6,12 +6,12 @@ import { documentsService } from "../services/documents"
 interface Document {
   id: string
   title: string
-  content?: string
-  file_type: string
-  file_size?: number
+  content_preview?: string
+  content_type: string
   processing_status: "pending" | "processing" | "completed" | "failed"
   created_at: string
-  spaceId?: string
+  space_id: string
+  error_message?: string
 }
 
 export function useDocuments(spaceId?: string) {
@@ -24,6 +24,7 @@ export function useDocuments(spaceId?: string) {
   }, [spaceId])
 
   const loadDocuments = async () => {
+    if (!spaceId) return
     try {
       setLoading(true)
       setError(null)
@@ -37,6 +38,7 @@ export function useDocuments(spaceId?: string) {
   }
 
   const uploadDocument = async (file: File, spaceId?: string) => {
+    if (!spaceId) throw new Error("Space ID is required")
     try {
       setLoading(true)
       setError(null)
@@ -52,10 +54,14 @@ export function useDocuments(spaceId?: string) {
   }
 
   const uploadFromUrl = async (url: string, spaceId?: string) => {
+    if (!spaceId) throw new Error("Space ID is required")
     try {
       setLoading(true)
       setError(null)
-      const document = await documentsService.uploadFromUrl(url, spaceId)
+      // Extract title from URL or use a default
+      const urlParts = url.split('/')
+      const title = urlParts[urlParts.length - 1] || 'Web Content'
+      const document = await documentsService.uploadFromUrl(url, title, spaceId)
       setDocuments((prev) => [document, ...prev])
       return document
     } catch (err: any) {
@@ -75,14 +81,7 @@ export function useDocuments(spaceId?: string) {
     }
   }
 
-  const getDocument = async (documentId: string) => {
-    try {
-      return await documentsService.getDocument(documentId)
-    } catch (err: any) {
-      setError(err.message)
-      throw err
-    }
-  }
+
 
   return {
     documents,
@@ -91,7 +90,6 @@ export function useDocuments(spaceId?: string) {
     uploadDocument,
     uploadFromUrl,
     deleteDocument,
-    getDocument,
     refreshDocuments: loadDocuments,
   }
 }

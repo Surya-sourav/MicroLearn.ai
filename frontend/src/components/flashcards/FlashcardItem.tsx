@@ -10,7 +10,7 @@ interface Flashcard {
   question: string
   answer: string
   difficulty: "easy" | "medium" | "hard"
-  spaceId: string
+  space_id: string
   created_at: string
   last_reviewed?: string
   review_count: number
@@ -26,7 +26,7 @@ interface FlashcardItemProps {
 
 export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false)
-  const [showActions, setShowActions] = useState(false)
+
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -48,40 +48,41 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
 
   const handleReview = (correct: boolean) => {
     onReview(flashcard.id, correct)
-    setShowActions(false)
+
     setIsFlipped(false)
   }
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
       <CardContent className="p-0">
-        <div className="relative h-64 perspective-1000" onClick={() => setIsFlipped(!isFlipped)}>
+        <div className="relative h-80" onClick={() => setIsFlipped(!isFlipped)}>
           {/* Front Side */}
           <div
             className={`absolute inset-0 w-full h-full transition-transform duration-500 ${
               isFlipped ? "rotate-y-180" : ""
-            } backface-hidden`}
+            } backface-hidden bg-white dark:bg-gray-800 rounded-t-lg`}
           >
-            <div className="p-6 h-full flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(flashcard.difficulty)}`}
-                  >
-                    {flashcard.difficulty}
-                  </span>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Brain className="w-3 h-3" />
-                    {getAccuracy()}%
-                  </div>
-                </div>
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg mb-2">Question</h3>
-                  <p className="text-gray-700 dark:text-gray-300">{flashcard.question}</p>
+            <div className="p-6 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(flashcard.difficulty)}`}
+                >
+                  {flashcard.difficulty}
+                </span>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Brain className="w-3 h-3" />
+                  {getAccuracy()}%
                 </div>
               </div>
+              
+              <div className="flex-1 flex flex-col justify-center text-center">
+                <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100">Micro Note</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2">
+                  {flashcard.question}
+                </p>
+              </div>
 
-              <div className="text-center text-sm text-gray-500">Click to reveal answer</div>
+              <div className="text-center text-sm text-gray-500 mt-4">Click to reveal context</div>
             </div>
           </div>
 
@@ -89,28 +90,29 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
           <div
             className={`absolute inset-0 w-full h-full transition-transform duration-500 ${
               isFlipped ? "" : "rotate-y-180"
-            } backface-hidden rotate-y-180`}
+            } backface-hidden rotate-y-180 bg-white dark:bg-gray-800 rounded-t-lg`}
           >
-            <div className="p-6 h-full flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(flashcard.difficulty)}`}
-                  >
-                    {flashcard.difficulty}
-                  </span>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar className="w-3 h-3" />
-                    {flashcard.review_count} reviews
-                  </div>
-                </div>
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg mb-2">Answer</h3>
-                  <p className="text-gray-700 dark:text-gray-300">{flashcard.answer}</p>
+            <div className="p-6 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(flashcard.difficulty)}`}
+                >
+                  {flashcard.difficulty}
+                </span>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Calendar className="w-3 h-3" />
+                  {flashcard.review_count} reviews
                 </div>
               </div>
+              
+              <div className="flex-1 flex flex-col justify-center text-center">
+                <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100">Context</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2">
+                  {flashcard.answer}
+                </p>
+              </div>
 
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-2 mt-4">
                 <Button
                   size="sm"
                   variant="outline"
@@ -141,7 +143,7 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 border-t flex justify-between items-center">
+        <div className="p-4 border-t flex justify-between items-center bg-gray-50 dark:bg-gray-700">
           <Button
             variant="ghost"
             size="sm"

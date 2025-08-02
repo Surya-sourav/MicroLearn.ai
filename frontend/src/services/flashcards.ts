@@ -4,7 +4,7 @@ interface Flashcard {
   id: string
   question: string
   answer: string
-  difficulty?: "easy" | "medium" | "hard"
+  difficulty: "easy" | "medium" | "hard"
   space_id: string
   created_at: string
   last_reviewed?: string
@@ -50,8 +50,8 @@ export const flashcardsService = {
     return res.json()
   },
 
-  async generateFlashcards(spaceId: string, count = 10): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/flashcards/spaces/${spaceId}/flashcards/generate?count=${count}`, {
+  async generateFlashcards(spaceId: string, documentId: string, count = 10): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/flashcards/spaces/${spaceId}/flashcards/generate?document_id=${documentId}&count=${count}`, {
       method: "POST",
       headers: getAuthHeaders(),
     })

@@ -3,12 +3,12 @@ const API_BASE_URL = "http://localhost:8000/api/v1"
 interface Document {
   id: string
   title: string
-  content?: string
-  file_type?: string
-  file_size?: number
+  content_preview?: string
+  content_type: string
   processing_status: "pending" | "processing" | "completed" | "failed"
   created_at: string
-  space_id?: string
+  space_id: string
+  error_message?: string
 }
 
 const getAuthHeaders = () => {

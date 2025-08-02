@@ -15,6 +15,8 @@ interface Space {
   id: string
   name: string
   description?: string
+  subject: string
+  color?: string
   created_at: string
   updated_at: string
 }
@@ -29,6 +31,8 @@ export function SpaceForm({ space, onClose, onSuccess }: SpaceFormProps) {
   const [formData, setFormData] = useState({
     name: space?.name || "",
     description: space?.description || "",
+    subject: space?.subject || "General",
+    color: space?.color || "#3B82F6",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -43,6 +47,10 @@ export function SpaceForm({ space, onClose, onSuccess }: SpaceFormProps) {
       newErrors.name = "Space name must be at least 2 characters"
     } else if (formData.name.trim().length > 100) {
       newErrors.name = "Space name must be less than 100 characters"
+    }
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Subject is required"
     }
 
     if (formData.description && formData.description.length > 500) {
@@ -114,6 +122,18 @@ export function SpaceForm({ space, onClose, onSuccess }: SpaceFormProps) {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="subject">Subject *</Label>
+              <Input
+                id="subject"
+                value={formData.subject}
+                onChange={(e) => handleInputChange("subject", e.target.value)}
+                placeholder="e.g., Physics, Math, History..."
+                className={errors.subject ? "border-red-500" : ""}
+              />
+              {errors.subject && <p className="text-sm text-red-600">{errors.subject}</p>}
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
@@ -139,7 +159,7 @@ export function SpaceForm({ space, onClose, onSuccess }: SpaceFormProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={loading || !formData.name.trim()}>
+              <Button type="submit" className="flex-1" disabled={loading || !formData.name.trim() || !formData.subject.trim()}>
                 {loading ? (
                   <>
                     <LoadingSpinner />

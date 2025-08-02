@@ -7,6 +7,8 @@ interface Space {
   id: string
   name: string
   description?: string
+  subject: string
+  color?: string
   created_at: string
   updated_at: string
   document_count?: number
@@ -36,7 +38,7 @@ export function useSpaces() {
     }
   }
 
-  const createSpace = async (spaceData: { name: string; description?: string }) => {
+  const createSpace = async (spaceData: { name: string; description?: string; subject: string; color?: string }) => {
     try {
       setLoading(true)
       setError(null)
@@ -51,7 +53,7 @@ export function useSpaces() {
     }
   }
 
-  const updateSpace = async (spaceId: string, updates: { name?: string; description?: string }) => {
+  const updateSpace = async (spaceId: string, updates: { name?: string; description?: string; subject?: string; color?: string }) => {
     try {
       setLoading(true)
       setError(null)
