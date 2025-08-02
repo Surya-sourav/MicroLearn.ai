@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent } from "../ui/card"
 import { Button } from "../ui/button"
-import { RotateCcw, Check, X, Trash2, Edit, Brain, Calendar } from "lucide-react"
+import { RotateCcw, Trash2, Edit, Brain, Calendar, BookOpen, Lightbulb } from "lucide-react"
 
 interface Flashcard {
   id: string
@@ -19,14 +19,12 @@ interface Flashcard {
 
 interface FlashcardItemProps {
   flashcard: Flashcard
-  onReview: (flashcardId: string, correct: boolean) => void
   onDelete: (flashcardId: string) => void
   onEdit?: (flashcard: Flashcard) => void
 }
 
-export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: FlashcardItemProps) {
+export function FlashcardItem({ flashcard, onDelete, onEdit }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false)
-
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -46,14 +44,8 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
     return Math.round((flashcard.correct_count / flashcard.review_count) * 100)
   }
 
-  const handleReview = (correct: boolean) => {
-    onReview(flashcard.id, correct)
-
-    setIsFlipped(false)
-  }
-
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
+    <Card className="group hover:shadow-lg transition-all duration-300">
       <CardContent className="p-0">
         <div className="relative h-80" onClick={() => setIsFlipped(!isFlipped)}>
           {/* Front Side */}
@@ -71,18 +63,23 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
                 </span>
                 <div className="flex items-center gap-2 text-xs text-gray-500">
                   <Brain className="w-3 h-3" />
-                  {getAccuracy()}%
+                  {getAccuracy()}% accuracy
                 </div>
               </div>
               
               <div className="flex-1 flex flex-col justify-center text-center">
-                <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100">Micro Note</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2">
+                <div className="flex items-center justify-center mb-3">
+                  <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Key Concept</h3>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2 break-words">
                   {flashcard.question}
                 </p>
               </div>
 
-              <div className="text-center text-sm text-gray-500 mt-4">Click to reveal context</div>
+              <div className="text-center text-sm text-gray-500 mt-4">
+                Click to see detailed explanation
+              </div>
             </div>
           </div>
 
@@ -106,37 +103,17 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
               </div>
               
               <div className="flex-1 flex flex-col justify-center text-center">
-                <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100">Context</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2">
+                <div className="flex items-center justify-center mb-3">
+                  <Lightbulb className="w-5 h-5 mr-2 text-yellow-600" />
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Detailed Explanation</h3>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed px-2 break-words">
                   {flashcard.answer}
                 </p>
               </div>
 
-              <div className="flex justify-center gap-2 mt-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleReview(false)
-                  }}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Incorrect
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleReview(true)
-                  }}
-                  className="text-green-600 hover:text-green-700"
-                >
-                  <Check className="w-4 h-4 mr-1" />
-                  Correct
-                </Button>
+              <div className="text-center text-sm text-gray-500 mt-4">
+                Click to return to key concept
               </div>
             </div>
           </div>
@@ -151,9 +128,10 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
               e.stopPropagation()
               setIsFlipped(!isFlipped)
             }}
+            className="text-blue-600 hover:text-blue-700"
           >
             <RotateCcw className="w-4 h-4 mr-1" />
-            Flip
+            {isFlipped ? "Show Concept" : "Show Details"}
           </Button>
 
           <div className="flex gap-1">
@@ -165,6 +143,7 @@ export function FlashcardItem({ flashcard, onReview, onDelete, onEdit }: Flashca
                   e.stopPropagation()
                   onEdit(flashcard)
                 }}
+                className="text-gray-600 hover:text-gray-700"
               >
                 <Edit className="w-4 h-4" />
               </Button>

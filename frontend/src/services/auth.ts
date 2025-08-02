@@ -32,3 +32,24 @@ export async function loginUser(data: {
   }
   return res.json();
 }
+
+export async function validateToken() {
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const res = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  
+  if (!res.ok) {
+    throw new Error("Token validation failed");
+  }
+  
+  return res.json();
+}

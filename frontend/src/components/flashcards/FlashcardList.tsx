@@ -8,14 +8,14 @@ import { FlashcardItem } from "./FlashcardItem"
 import { FlashcardGenerator } from "./FlashcardGenerator"
 import { useFlashcards } from "../../hooks/useFlashcards"
 import LoadingSpinner from "../common/LoadingSpinner"
-import { Search, Plus, Brain, Play } from "lucide-react"
+import { Search, Plus, Brain } from "lucide-react"
 
 interface FlashcardListProps {
   spaceId: string
 }
 
 export function FlashcardList({ spaceId }: FlashcardListProps) {
-  const { flashcards, loading, deleteFlashcard, reviewFlashcard } = useFlashcards(spaceId)
+  const { flashcards, loading, deleteFlashcard } = useFlashcards(spaceId)
   const [searchTerm, setSearchTerm] = useState("")
   const [showGenerator, setShowGenerator] = useState(false)
   const [filterDifficulty, setFilterDifficulty] = useState<"all" | "easy" | "medium" | "hard">("all")
@@ -28,18 +28,11 @@ export function FlashcardList({ spaceId }: FlashcardListProps) {
     return matchesSearch && matchesDifficulty
   })
 
-  const handleReview = async (flashcardId: string, correct: boolean) => {
-    await reviewFlashcard(flashcardId, correct)
-  }
-
   const handleDelete = async (flashcardId: string) => {
     await deleteFlashcard(flashcardId)
   }
 
-  const startReviewSession = () => {
-    // Navigate to review mode or implement review logic
-    console.log("Starting review session...")
-  }
+
 
   return (
     <div className="space-y-6">
@@ -50,10 +43,6 @@ export function FlashcardList({ spaceId }: FlashcardListProps) {
           <p className="text-gray-600 dark:text-gray-400">Review and manage your study cards</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={startReviewSession}>
-            <Play className="w-4 h-4 mr-2" />
-            Start Review
-          </Button>
           <Button onClick={() => setShowGenerator(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Generate Cards
@@ -149,7 +138,7 @@ export function FlashcardList({ spaceId }: FlashcardListProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFlashcards.map((flashcard) => (
-            <FlashcardItem key={flashcard.id} flashcard={flashcard} onReview={handleReview} onDelete={handleDelete} />
+            <FlashcardItem key={flashcard.id} flashcard={flashcard} onDelete={handleDelete} />
           ))}
         </div>
       )}

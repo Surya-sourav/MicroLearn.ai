@@ -13,15 +13,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    // Check if user is authenticated by looking for access token
-    const token = localStorage.getItem("access_token")
-    if (!token && !loading) {
-      setIsChecking(false)
-    } else if (token && !user) {
-      // Token exists but user state is not set - try to validate token
-      // For now, we'll just set checking to false
-      setIsChecking(false)
-    } else {
+    // Wait for the auth hook to finish loading and validating
+    if (!loading) {
       setIsChecking(false)
     }
   }, [user, loading])
