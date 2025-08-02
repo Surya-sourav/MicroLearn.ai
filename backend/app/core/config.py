@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     GROQ_MODEL: str = "llama-3.3-70b-versatile"  # Latest Llama model
     
     # OpenAI - Keep for compatibility (not used)
-    OPENAI_API_KEY: str = ""
+    OPENAI_API_KEY: str = "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"
     
     # Pinecone
     PINECONE_API_KEY: str = ""
