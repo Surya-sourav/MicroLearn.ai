@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token, verify_token
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, User as UserSchema, TokenResponse
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -74,3 +75,8 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
         access_token=access_token,
         refresh_token=refresh_token
     )
+
+@router.get("/me", response_model=UserSchema)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return current_user

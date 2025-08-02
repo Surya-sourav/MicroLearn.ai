@@ -18,3 +18,5 @@ class User(Base):
     
     # Relationships
     spaces = relationship("Space", back_populates="owner", cascade="all, delete-orphan")
+    quizzes = relationship("Quiz", back_populates="user", cascade="all, delete-orphan")
+    quiz_attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")

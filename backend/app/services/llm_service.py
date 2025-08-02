@@ -33,6 +33,21 @@ class LLMService:
             logger.error(f"Groq API error: {str(e)}")
             raise Exception(f"Failed to get response from Groq: {str(e)}")
     
+    async def generate_response(self, prompt: str) -> str:
+        """Generate a simple response from a prompt"""
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        return await self._complete_chat(messages)
+    
+    async def generate_response_with_context(self, system_prompt: str, user_prompt: str) -> str:
+        """Generate response with system and user prompts"""
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        return await self._complete_chat(messages)
+    
     async def generate_flashcards(self, content: str, count: int = 10) -> List[dict]:
         """Generate micro notes flashcards from content using LLM"""
         prompt = f"""

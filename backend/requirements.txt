@@ -4,6 +4,7 @@ python-jose[cryptography]
 uvicorn[standard]
 sqlalchemy
 psycopg2-binary
+alembic
 pydantic[email]
 pydantic-settings
 python-multipart

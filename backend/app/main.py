@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api.v1 import auth, users, spaces, documents, flashcards, chat
+from app.api.v1 import auth, users, spaces, documents, flashcards, chat, quizzes, multi_space_chat
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -31,6 +31,8 @@ app.include_router(spaces.router, prefix="/api/v1/spaces", tags=["spaces"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(flashcards.router, prefix="/api/v1/flashcards", tags=["flashcards"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
+app.include_router(quizzes.router, prefix="/api/v1/quizzes", tags=["quizzes"])
+app.include_router(multi_space_chat.router, prefix="/api/v1/multi-space-chat", tags=["multi-space-chat"])
 
 @app.get("/")
 async def root():
