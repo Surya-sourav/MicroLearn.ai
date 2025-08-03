@@ -22,18 +22,15 @@ export const GoogleGeminiEffect = ({
 }) => {
   return (
     <div className={cn("sticky top-80", className)}>
-      <p className="text-lg md:text-7xl font-normal pb-4 text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-100 to-neutral-300">
-        {title || `Build for the next Gen Learners !`}
+      <p className="text-lg md:text-7xl font-normal pb-4 text-center bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-purple-300 drop-shadow-2xl">
+        {title || `Tune into Intelligent Learning`}
       </p>
-      <p className="text-xs md:text-xl font-normal text-center text-neutral-400 mt-4 max-w-lg mx-auto">
+      <p className="text-xs md:text-xl font-normal text-center text-gray-200 mt-4 max-w-lg mx-auto">
         {description ||
-          `Ai'fy your learning ,Be 100x at Career ;)`}
+          `Transform any content into your personal study companion. Because learning shouldn't feel like work.`}
       </p>
       <div className="w-full h-[890px] -top-60 md:-top-40  flex items-center justify-center bg-red-transparent absolute ">
-      
-        <button className="font-bold bg-white rounded-full md:px-4 md:py-2 px-2 py-1 md:mt-24 mt-8 z-30 md:text-base text-black text-xs  w-fit mx-auto ">
-          MicroLearn.ai
-        </button>
+    
         
       </div>
       <svg
