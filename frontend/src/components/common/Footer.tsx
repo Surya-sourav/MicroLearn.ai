@@ -19,7 +19,7 @@ export default function Footer() {
           <div className="flex h-full w-[400px] flex-col items-center gap-6 max-md:w-full">
             <div className="w-full items-center flex flex-col gap-6">
               <img
-                src="/src/assets/microlearn_logo.png"
+                src="/microlearn_logo.png"
                 alt="logo"
                 className="max-w-[120px] dark:invert"
               />

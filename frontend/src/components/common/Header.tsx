@@ -18,7 +18,7 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
       <div className="flex p-1 gap-2 items-center">
         <div className="h-[30px] max-w-[100px]">
           <img
-            src="/src/assets/microlearn_logo.png"
+            src="/microlearn_logo.png"
             alt="logo"
             className="object-contain h-full w-full dark:invert"
           />

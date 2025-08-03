@@ -191,7 +191,7 @@ const features = [
                   <div className="min-w-[250px] max-lg:hidden p-2 gap-2 flex flex-col bg-gray-100 dark:bg-[#171717] h-full">
                     <div className="h-[30px] w-fit max-w-[100px]">
                       <img
-                        src="src/assets/microlearn_logo.png"
+                        src="/microlearn_logo.png"
                         alt="logo"
                         className="object-contain opacity-80 h-full w-full dark:invert"
                       />
@@ -235,7 +235,7 @@ const features = [
                     <div className="relative w-full flex justify-center h-full">
                       <div className="absolute top-[20%] max-lg:top-[30%] left-1/2 -translate-x-1/2 w-[150px] h-[150px]">
                         <img
-                          src="src/assets/microlearn_logo.png"
+                          src="/microlearn_logo.png"
                           alt="MicroLearn AI"
                           className="w-full h-full dark:invert object-contain opacity-20"
                         />
