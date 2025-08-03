@@ -201,7 +201,7 @@ const features = [
                   <div className="min-w-[250px] max-lg:hidden p-2 gap-2 flex flex-col bg-gray-100 dark:bg-[#171717] h-full">
                     <div className="h-[30px] w-fit max-w-[100px]">
                       <img
-                        src="https://via.placeholder.com/100x30/6366f1/ffffff?text=PIXA"
+                        src="/src/assets/microlearn_logo.png"
                         alt="logo"
                         className="object-contain opacity-80 h-full w-full dark:invert"
                       />
