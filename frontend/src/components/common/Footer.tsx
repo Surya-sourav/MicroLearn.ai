@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 
 
-import { TextHoverEffect } from "../ui/text-hover-footer";
+
 
 
 

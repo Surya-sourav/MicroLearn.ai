@@ -6,14 +6,12 @@ import { Input } from "../components/ui/input"
 import { useSpaces } from "../hooks/useSpaces"
 import LoadingSpinner from "../components/common/LoadingSpinner"
 import { 
-  Brain, 
-  Play, 
   Folder, 
   Search, 
   CheckCircle, 
   Circle,
   Settings,
-  Clock,
+
   Target,
   Zap
 } from "lucide-react"

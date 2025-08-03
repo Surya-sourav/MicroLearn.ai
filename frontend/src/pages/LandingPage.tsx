@@ -1,14 +1,13 @@
 "use client"
 import { useState, useEffect } from "react"
 
-import { Link, Navigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "../components/ui/button"
-import { Card, CardContent } from "../components/ui/card"
+import { Card } from "../components/ui/card"
 import { Input } from "../components/ui/input"
 import Header from "../components/common/Header"
 import Footer from "../components/common/Footer"
-import LoginForm from "../components/auth/LoginForm"
-import SignupForm from "../components/auth/RegisterForm"
+
 import { GoogleGeminiEffect } from "../components/ui/google-gemini-scroll"
 import { TextHoverEffect } from "../components/ui/text-hover-footer"
 import { useScroll, useTransform } from "motion/react";
@@ -16,20 +15,11 @@ import React from "react"
 import {
   Play,
   ArrowRight,
-  ArrowUpRight,
   ChevronDown,
   Plus,
   Minus,
-  Code,
   FileText,
   ImageIcon,
-  BarChart3,
-  Music,
-  Video,
-  Grid3X3,
-  Check,
-  AirVent,
-  HousePlug,
   BrainCogIcon,
   Text,
   BookCheck,
@@ -37,7 +27,7 @@ import {
 import { motion } from "motion/react";
 import { AuroraBackground } from "../components/ui/aurora-bg"
 import { ContainerScroll } from "../components/ui/container-scroll"
-import { Box, Lock, Search, Settings, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 
 
@@ -48,7 +38,7 @@ export default function LandingPage() {
   const [isDark, setIsDark] = useState(true)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
+
   // const [showSignup, setShowSignup] = useState(false)
 
     const ref = React.useRef(null);
@@ -138,7 +128,7 @@ const features = [
         transition={{
           delay: 0.3,
           duration: 0.8,
-          ease: "easeInOut",
+          ease: [0.25, 0.46, 0.45, 0.94],
         }}>
       <section className="relative mt-20 flex min-h-screen w-full flex-col overflow-hidden max-lg:mt-[100px]">
         <div className="relative flex h-full min-h-screen w-full flex-col justify-center gap-6 p-[5%] max-xl:items-center max-lg:p-4">

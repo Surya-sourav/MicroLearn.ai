@@ -6,7 +6,7 @@ import { motion, MotionValue } from "motion/react";
 
 const transition = {
   duration: 0,
-  ease: "linear",
+  ease: [0, 0, 1, 1] as const,
 };
 
 export const GoogleGeminiEffect = ({

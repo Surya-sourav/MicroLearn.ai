@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { registerUser, loginUser, validateToken } from "../services/auth";
+import type { User } from "../types/auth";
 
 export function useAuth() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

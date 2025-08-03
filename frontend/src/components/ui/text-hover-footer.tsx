@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 export const TextHoverEffect = ({
@@ -112,7 +112,7 @@ export const TextHoverEffect = ({
         }}
         transition={{
           duration: 4,
-          ease: "easeInOut",
+          ease: [0.25, 0.46, 0.45, 0.94],
         }}
       >
         {text}

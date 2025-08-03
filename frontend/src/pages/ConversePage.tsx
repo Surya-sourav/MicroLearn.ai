@@ -12,9 +12,7 @@ import {
   CheckCircle, 
   Circle,
   Bot,
-  User,
-  Settings,
-  Zap,
+
   Sparkles
 } from "lucide-react"
 
@@ -107,9 +105,7 @@ export default function ConversePage() {
     }
   }
 
-  const getSelectedSpacesData = () => {
-    return spaces.filter(space => selectedSpaces.includes(space.id))
-  }
+
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
