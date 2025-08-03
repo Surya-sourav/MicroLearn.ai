@@ -257,12 +257,12 @@ const rawTestimonials = [
                 <span>Watch video</span>
               </Button>
 
-              <Link to= "/register">
+              <Link to= "https://waitinglist-micro-ai.vercel.app/">
               <Button
                 className="w-[170px] max-lg:w-[160px] rounded-xl py-4 max-lg:py-2 group shadow-lg"
                 
               >
-                <span>Get started</span>
+                <span>Join Waitlist</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 duration-300" />
               </Button>
               </Link>
@@ -307,35 +307,32 @@ const rawTestimonials = [
                     </div>
 
                     <div className="flex mt-2 gap-2 flex-col">
-                      <Link to="/login" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <ImageIcon className="w-5 h-5" />
                         <span>FlashCards</span>
                       </Link>
-                      <Link to="/login" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <FileText className="w-5 h-5" />
                         <span>Spaces</span>
                       </Link>
-                      <Link to="/login" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <Text className="w-5 h-5" />
                         <span>Converse</span>
                       </Link>
-                      <Link to="/login" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <BrainCogIcon className="w-5 h-5" />
                         <span>Ai-Tutor</span>
                       </Link>
-                       <Link to="/login" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                       <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <BookCheck className="w-5 h-5" />
                         <span>Ai-Quizes</span>
                       </Link>
                     </div>
-
                     <div className="mt-auto w-full flex px-6 justify-center">
-                      <Link to= "/register">
+                      <Link to= "">
                       <Button
                         variant="outline"
-                        className="w-full bg-transparent border-black text-black dark:border-white dark:text-white"
-                        
-                      >
+                        className="w-full bg-transparent border-black text-black dark:border-white dark:text-white">
                         Signup
                       </Button>
                       </Link>
@@ -385,7 +382,7 @@ const rawTestimonials = [
                         className="bg-transparent border-none w-full h-full"
                       />
 
-                    <Link to="/login">
+                    <Link to="">
                       <Button  size="sm" className="bg-[#6366f1] text-white">
                         <ArrowRight className="w-4 h-4 rotate-90" />
                       </Button>
@@ -667,13 +664,13 @@ const rawTestimonials = [
       <section className="relative flex p-2 w-full min-h-[60vh] flex-col justify-center items-center overflow-hidden">
         <div className="w-full h-full min-h-[450px] max-lg:max-w-full rounded-md lg:py-[5%] bg-[#f6f7fb] dark:bg-[#171717] justify-center items-center flex flex-col max-w-[80%] gap-4 p-4">
           <h3 className="text-5xl font-medium max-md:text-3xl text-center leading-normal">
-           What are your Waiting for ?
+           What's Stopping You ?
           </h3>
 
           <div className="mt-8 relative flex max-lg:flex-col gap-5">
-            <Link to= "/login">
+            <Link to= "https://waitinglist-micro-ai.vercel.app/">
             <Button className="rounded-full p-4 font-medium" >
-              Learn 100x
+              Join Waitlist
             </Button>
             </Link>
           </div>

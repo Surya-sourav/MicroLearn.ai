@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Pixa - All your AI models in one place",
+  title: "M I C R O.ai",
   description:
     "Your all in one AI companion. Generate images, videos, codes, docs, debug your web apps all with Pixa's interface.",
   keywords: [
