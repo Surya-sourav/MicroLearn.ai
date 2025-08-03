@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { Link } from "react-router-dom"
-
-
-
-=======
->>>>>>> 6c3050b (Footer Linkedin + Logo)
 
 import { SocialIcon } from "../ui/social-icon";
 import { LinkedInIcon } from "../icons/linkedin-icon";
