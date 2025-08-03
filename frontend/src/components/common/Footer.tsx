@@ -81,12 +81,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <hr className="mt-8" />
-
-        <div className="mt-2 flex gap-2 flex-col text-gray-700 dark:text-gray-300 items-center text-[12px] w-full text-center justify-around">
-          <span>Copyright ©2025</span>
-          <span>Build with ❤️ for learners</span>
-        </div>
+       
       </footer>
     </>
   )
