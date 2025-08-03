@@ -1,10 +1,31 @@
-import { useState } from "react";
-import { registerUser, loginUser } from "../services/auth";
+import { useState, useEffect } from "react";
+import { registerUser, loginUser, validateToken } from "../services/auth";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check for existing token on mount and validate it
+  useEffect(() => {
+    const validateExistingToken = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          // Validate token with backend
+          const userData = await validateToken();
+          setUser(userData);
+        } catch (err) {
+          // Token is invalid, remove it
+          localStorage.removeItem("access_token");
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    validateExistingToken();
+  }, []);
 
   const register = async (data: { email: string; username: string; password: string }) => {
     setLoading(true);
@@ -42,7 +63,11 @@ export function useAuth() {
     localStorage.removeItem("access_token");
   };
 
-  return { user, loading, error, register, login, logout };
+  const isAuthenticated = () => {
+    return !!localStorage.getItem("access_token");
+  };
+
+  return { user, loading, error, register, login, logout, isAuthenticated };
 }
 
 export default useAuth;

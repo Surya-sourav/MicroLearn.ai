@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { InfiniteMovingCards } from "../components/ui/moving-cards"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
 import { Input } from "../components/ui/input"
@@ -28,6 +28,11 @@ import {
   Video,
   Grid3X3,
   Check,
+  AirVent,
+  HousePlug,
+  BrainCogIcon,
+  Text,
+  BookCheck,
 } from "lucide-react"
 import { motion } from "motion/react";
 import { AuroraBackground } from "../components/ui/aurora-bg"
@@ -44,7 +49,7 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
-  const [showSignup, setShowSignup] = useState(false)
+  // const [showSignup, setShowSignup] = useState(false)
 
     const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
@@ -193,8 +198,8 @@ const rawTestimonials = [
       <Header isDark={isDark} setIsDark={setIsDark} />
 
       {/* Auth Modals */}
-      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
-      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
+      {/* {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
+      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />} */}
 
       {/* Video Modal */}
       {isVideoOpen && (
@@ -229,9 +234,9 @@ const rawTestimonials = [
 
           <div className="flex flex-col min-h-[60vh] justify-center items-center">
             <h1 className="text-center text-7xl font-semibold uppercase leading-[90px] max-lg:text-4xl max-md:leading-snug">
-              <span>Micro.Ai</span>
+              <span>M I C R O</span>
               <br />
-              <span className="font-thin font-serif">Learn 100x</span>
+              <span className="font-thin font-serif">Learn</span>
             </h1>
 
             <p className="mt-8 max-w-[450px] text-lg max-lg:text-base p-2 text-center text-gray-800 dark:text-white max-lg:max-w-full">
@@ -252,13 +257,15 @@ const rawTestimonials = [
                 <span>Watch video</span>
               </Button>
 
+              <Link to= "https://waitinglist-micro-ai.vercel.app/">
               <Button
                 className="w-[170px] max-lg:w-[160px] rounded-xl py-4 max-lg:py-2 group shadow-lg"
-                onClick={() => setShowSignup(true)}
+                
               >
-                <span>Get started</span>
+                <span>Join Waitlist</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 duration-300" />
               </Button>
+              </Link>
         
             </div>
           </div>
@@ -300,28 +307,35 @@ const rawTestimonials = [
                     </div>
 
                     <div className="flex mt-2 gap-2 flex-col">
-                      <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <ImageIcon className="w-5 h-5" />
                         <span>FlashCards</span>
                       </Link>
-                      <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
                         <FileText className="w-5 h-5" />
                         <span>Spaces</span>
                       </Link>
-                      <Link to="#" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
-                        <Code className="w-5 h-5" />
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                        <Text className="w-5 h-5" />
                         <span>Converse</span>
                       </Link>
+                      <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                        <BrainCogIcon className="w-5 h-5" />
+                        <span>Ai-Tutor</span>
+                      </Link>
+                       <Link to="" className="flex rounded-sm gap-2 p-2 dark:hover:bg-[#2d2d2ddb] hover:bg-gray-200">
+                        <BookCheck className="w-5 h-5" />
+                        <span>Ai-Quizes</span>
+                      </Link>
                     </div>
-
                     <div className="mt-auto w-full flex px-6 justify-center">
+                      <Link to= "">
                       <Button
                         variant="outline"
-                        className="w-full bg-transparent border-black text-black dark:border-white dark:text-white"
-                        onClick={() => setShowSignup(true)}
-                      >
+                        className="w-full bg-transparent border-black text-black dark:border-white dark:text-white">
                         Signup
                       </Button>
+                      </Link>
                     </div>
                   </div>
 
@@ -331,16 +345,16 @@ const rawTestimonials = [
                       <div className="absolute top-[20%] max-lg:top-[30%] left-1/2 -translate-x-1/2 w-[150px] h-[150px]">
                         <img
                           src="https://via.placeholder.com/150x150/6366f1/ffffff?text=PIXA"
-                          alt="Pixa logo"
+                          alt="M I C R O"
                           className="w-full h-full dark:invert object-contain opacity-20"
                         />
                       </div>
 
                       <div className="w-full h-full z-10 flex flex-col justify-center">
                         <div className="w-full flex text-center flex-col justify-center">
-                          <h2 className="text-4xl max-md:text-2xl max-md:mt-3 opacity-80">Try Prompts</h2>
+                          <h2 className="text-4xl max-md:text-2xl max-md:mt-3 opacity-80">Gateway of AI Learning</h2>
                           <div className="mt-6 max-md:mt-3">
-                            <span>{"What's Pixa playground?"}</span>
+                            <span>{"What's MicroLearn AI?"}</span>
                             <span className="animate-pulse">|</span>
                           </div>
                         </div>
@@ -358,19 +372,21 @@ const rawTestimonials = [
                               className="dark:invert"
                             />
                           </div>
-                          <span>GPT 4o</span>
+                          <span>__4o</span>
                           <ChevronDown className="w-4 h-4 ml-auto" />
                         </div>
                       </div>
 
                       <Input
-                        placeholder="How to develop a saas app?"
+                        placeholder="What is ILATE rule of Calculus ?"
                         className="bg-transparent border-none w-full h-full"
                       />
 
-                      <Button size="sm" className="bg-[#6366f1] text-white">
+                    <Link to="">
+                      <Button  size="sm" className="bg-[#6366f1] text-white">
                         <ArrowRight className="w-4 h-4 rotate-90" />
                       </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -422,7 +438,9 @@ const rawTestimonials = [
                   {f.description}
                 </p>
                 <div className="mt-auto flex items-center gap-2 text-indigo-600 group">
+                  <Link to= "/register">
                   <span>Learn more</span>
+                  </Link>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" />
                 </div>
               </CardContent>
@@ -646,13 +664,15 @@ const rawTestimonials = [
       <section className="relative flex p-2 w-full min-h-[60vh] flex-col justify-center items-center overflow-hidden">
         <div className="w-full h-full min-h-[450px] max-lg:max-w-full rounded-md lg:py-[5%] bg-[#f6f7fb] dark:bg-[#171717] justify-center items-center flex flex-col max-w-[80%] gap-4 p-4">
           <h3 className="text-5xl font-medium max-md:text-3xl text-center leading-normal">
-           What are your Waiting for ?
+           What's Stopping You ?
           </h3>
 
           <div className="mt-8 relative flex max-lg:flex-col gap-5">
-            <Button className="rounded-full p-4 font-medium" onClick={() => setShowSignup(true)}>
-              Learn 100x
+            <Link to= "https://waitinglist-micro-ai.vercel.app/">
+            <Button className="rounded-full p-4 font-medium" >
+              Join Waitlist
             </Button>
+            </Link>
           </div>
         </div>
       </section>

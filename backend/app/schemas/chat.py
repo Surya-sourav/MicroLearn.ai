@@ -6,7 +6,6 @@ from app.models.chat import ChatRole
 
 class ChatRequest(BaseModel):
     message: str
-    space_id: uuid.UUID
 
 class ChatMessage(BaseModel):
     id: uuid.UUID

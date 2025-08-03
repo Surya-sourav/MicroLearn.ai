@@ -1,0 +1,540 @@
+import os
+import asyncio
+from typing import List, Dict, Any
+import uuid
+from datetime import datetime
+import logging
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
+from app.models.document import Document, ProcessingStatus
+from app.models.space import Space
+from app.services.vector_service import VectorService
+from app.services.content_extraction_service import ContentExtractionService
+from app.utils.document_parser import DocumentParser
+from app.utils.youtube_extractor import YouTubeExtractor
+from app.utils.web_scraper import WebScraper
+import re
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+import tiktoken
+
+logger = logging.getLogger(__name__)
+
+class IngestionService:
+    def __init__(self):
+        self.vector_service = VectorService()
+        self.document_parser = DocumentParser()
+        self.content_extraction = ContentExtractionService()
+        self.youtube_extractor = YouTubeExtractor()
+        self.web_scraper = WebScraper()
+        
+        # Initialize text splitter
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=50,
+            length_function=self._count_tokens,
+            separators=["\n\n", "\n", " ", ""]
+        )
+    
+    def _count_tokens(self, text: str) -> int:
+        enc = tiktoken.encoding_for_model("gpt-3.5-turbo")
+        return len(enc.encode(text))
+    
+    async def process_document(self, document_id: uuid.UUID):
+        db = SessionLocal()
+        try:
+            document = db.query(Document).filter(Document.id == document_id).first()
+            if not document:
+                logger.error(f"Document {document_id} not found")
+                return
+            
+            # Update status to processing
+            document.processing_status = ProcessingStatus.PROCESSING
+            db.commit()
+            
+            try:
+                # Extract text and metadata based on content type
+                if document.content_type.value == 'pdf':
+                    # Extract text, metadata, and images
+                    document_structure = await self.content_extraction.analyze_document_structure(
+                        document.file_path
+                    )
+                    
+                    # Store document metadata
+                    document.doc_metadata = document_structure["metadata"]
+                    document.doc_structure = document_structure
+                    
+                    # Convert images list to dict for schema compatibility
+                    images_dict = {
+                        "count": document_structure["images"]["count"],
+                        "items": document_structure["images"]["items"]
+                    }
+                    document.extracted_images = images_dict
+                    
+                    # Update statistics
+                    document.image_count = document_structure["images"]["count"]
+                    document.page_count = document_structure["metadata"].get("pages", 0)
+                    
+                    # Set preview from first meaningful content
+                    document.content_preview = (
+                        document_structure["content"][0]["content"][:500] 
+                        if document_structure["content"] 
+                        else ""
+                    )
+                    
+                    # Get space for namespace
+                    space = db.query(Space).filter(Space.id == document.space_id).first()
+                    if not space:
+                        raise ValueError("Space not found")
+                    
+                    # Find related documents
+                    related_docs = await self._find_related_documents(document, space, db)
+                    
+                    # Prepare base metadata
+                    base_metadata = {
+                        "document_id": str(document.id),
+                        "title": document.title,
+                        "content_type": document.content_type.value,
+                        "created_at": document.created_at.isoformat(),
+                        "space_id": str(document.space_id),
+                        "related_documents": related_docs,
+                        **document_structure["metadata"]
+                    }
+                    
+                    # Process and store content
+                    vector_results = []
+                    
+                    # Process text content
+                    for content_item in document_structure["content"]:
+                        # Split into chunks
+                        chunks = self.text_splitter.split_text(content_item["content"])
+                        
+                        # Prepare chunks with metadata
+                        chunk_contents = []
+                        for i, chunk in enumerate(chunks):
+                            chunk_contents.append({
+                                "content": chunk,
+                                "type": "text",
+                                "metadata": {
+                                    **base_metadata,
+                                    "chunk_index": i,
+                                    "page_number": content_item["metadata"]["page_number"],
+                                    "category": content_item["metadata"]["category"]
+                                }
+                            })
+                        
+                        # Store chunks
+                        text_result = await self.vector_service.store_embeddings(
+                            content=chunk_contents,
+                            namespace=space.vector_namespace,
+                            document_metadata=base_metadata
+                        )
+                        vector_results.append(text_result)
+                    
+                    # Store image metadata if present
+                    if document_structure["images"]["count"] > 0:
+                        image_content = []
+                        for image in document_structure["images"]["items"]:
+                            # Create image metadata text
+                            image_text = f"Image: {image['name']}\n"
+                            image_text += f"Format: {image['format']}\n"
+                            image_text += f"Size: {image['size']['width']}x{image['size']['height']}\n"
+                            
+                            # Split image text into chunks
+                            image_chunks = self.text_splitter.split_text(image_text)
+                            
+                            for i, chunk in enumerate(image_chunks):
+                                image_content.append({
+                                    "content": chunk,
+                                    "type": "image",
+                                    "metadata": {
+                                        **base_metadata,
+                                        "image_path": image["image_path"],
+                                        "format": image["format"],
+                                        "size": f"{image['size']['width']}x{image['size']['height']}",
+                                        "aspect_ratio": str(image['size']['aspect_ratio']),
+                                        "chunk_index": i,
+                                        "page_number": image["page_number"]
+                                    }
+                                })
+                        
+                        image_result = await self.vector_service.store_embeddings(
+                            content=image_content,
+                            namespace=space.vector_namespace,
+                            document_metadata=base_metadata
+                        )
+                        vector_results.append(image_result)
+                    
+                    # Update document with vector info
+                    document.vector_ids = []
+                    document.chunk_count = 0
+                    for result in vector_results:
+                        if result and "vector_ids" in result:
+                            # Use the vector_ids from the result
+                            document.vector_ids.extend([
+                                str(vid) for vid in result["vector_ids"] if vid
+                            ])
+                            document.chunk_count += result["total_vectors"]
+                    
+                    # Calculate word count from all chunks
+                    document.word_count = sum(
+                        len(chunk.get("content", "").split())
+                        for result in vector_results
+                        if result and "chunks_metadata" in result
+                        for chunk in result["chunks_metadata"]
+                        if chunk.get("content")
+                    )
+                    
+                    # Mark as completed
+                    document.processing_status = ProcessingStatus.COMPLETED
+                    document.processed_at = datetime.utcnow()
+                    
+                else:
+                    raise ValueError(f"Unsupported content type: {document.content_type}")
+                
+            except Exception as e:
+                logger.error(f"Error processing document {document_id}: {str(e)}")
+                document.processing_status = ProcessingStatus.FAILED
+                document.error_message = str(e)
+                raise
+            
+            finally:
+                db.commit()
+                
+        except Exception as e:
+            logger.error(f"Error in process_document: {str(e)}")
+            raise
+            
+        finally:
+            db.close()
+    
+    async def _find_related_documents(
+        self,
+        document: Document,
+        space: Space,
+        db: Session
+    ) -> List[Dict[str, Any]]:
+        """Find related documents using various methods"""
+        try:
+            related = []
+            
+            # Find similar documents using vector similarity
+            if document.content_preview:
+                similar = await self.vector_service.similarity_search(
+                    query=document.content_preview,
+                    namespace=space.vector_namespace,
+                    top_k=5,
+                    filter={
+                        "document_id": {"$ne": str(document.id)}  # Exclude self
+                    }
+                )
+                
+                for result in similar:
+                    if result["score"] > 0.7:  # Minimum similarity threshold
+                        related.append({
+                            "document_id": result["metadata"]["document_id"],
+                            "title": result["metadata"]["title"],
+                            "relationship_type": "similar",
+                            "similarity_score": result["score"]
+                        })
+            
+            # Find documents with similar titles
+            title_pattern = re.compile(r'[^\w\s]')
+            clean_title = title_pattern.sub('', document.title.lower())
+            title_parts = set(clean_title.split())
+            
+            space_docs = db.query(Document).filter(
+                Document.space_id == space.id,
+                Document.id != document.id,
+                Document.processing_status == "completed"
+            ).all()
+            
+            for doc in space_docs:
+                clean_doc_title = title_pattern.sub('', doc.title.lower())
+                doc_parts = set(clean_doc_title.split())
+                
+                # Check for title similarity
+                overlap = len(title_parts.intersection(doc_parts))
+                if overlap >= 2:  # At least 2 words in common
+                    related.append({
+                        "document_id": str(doc.id),
+                        "title": doc.title,
+                        "relationship_type": "related_title",
+                        "similarity_score": overlap / len(title_parts.union(doc_parts))
+                    })
+                
+                # Check for version/sequence relationships
+                version_pattern = r'v(\d+(?:\.\d+)*)'
+                doc_version = re.search(version_pattern, doc.title)
+                current_version = re.search(version_pattern, document.title)
+                
+                if doc_version and current_version:
+                    if doc_version.group(1) < current_version.group(1):
+                        related.append({
+                            "document_id": str(doc.id),
+                            "title": doc.title,
+                            "relationship_type": "previous_version",
+                            "version": doc_version.group(1)
+                        })
+            
+            return related
+            
+        except Exception as e:
+            logger.error(f"Error finding related documents: {str(e)}")
+            return []
+    
+    async def reprocess_document(self, document_id: uuid.UUID):
+        """Reprocess an existing document"""
+        db = SessionLocal()
+        try:
+            document = db.query(Document).filter(Document.id == document_id).first()
+            if not document:
+                raise ValueError(f"Document {document_id} not found")
+            
+            # Delete existing vectors if any
+            if document.vector_ids:
+                space = db.query(Space).filter(Space.id == document.space_id).first()
+                if space:
+                    await self.vector_service.delete_vectors(
+                        namespace=space.vector_namespace,
+                        ids=document.vector_ids
+                    )
+            
+            # Reset document status and metadata
+            document.processing_status = ProcessingStatus.PENDING
+            document.vector_ids = []
+            document.chunk_count = 0
+            document.doc_metadata = None
+            document.doc_structure = None
+            document.extracted_images = None
+            document.word_count = None
+            document.page_count = None
+            document.image_count = None
+            document.processed_at = None
+            document.error_message = None
+            db.commit()
+            
+            # Reprocess document
+            await self.process_document(document_id)
+            
+        finally:
+            db.close()
+    
+    async def process_youtube_url(self, url: str, space_id: uuid.UUID):
+        """Process YouTube URL and extract transcript"""
+        db = SessionLocal()
+        try:
+            # Find the document record
+            document = db.query(Document).filter(
+                Document.file_path == url,
+                Document.space_id == space_id
+            ).first()
+            
+            if not document:
+                logger.error(f"Document not found for YouTube URL: {url}")
+                return
+            
+            # Update status to processing
+            document.processing_status = ProcessingStatus.PROCESSING
+            db.commit()
+            
+            try:
+                # Extract transcript
+                transcript = await self.youtube_extractor.get_transcript(url)
+                
+                if not transcript:
+                    document.processing_status = ProcessingStatus.FAILED
+                    document.error_message = "Failed to extract transcript from YouTube video"
+                    db.commit()
+                    return
+                
+                # Update document with transcript
+                document.content_preview = transcript[:500] + "..." if len(transcript) > 500 else transcript
+                document.word_count = len(transcript.split())
+                document.doc_metadata = {
+                    "source": "youtube",
+                    "url": url,
+                    "transcript_length": len(transcript)
+                }
+                
+                # Get space for namespace
+                space = db.query(Space).filter(Space.id == space_id).first()
+                if not space:
+                    raise ValueError("Space not found")
+                
+                # Process and store content
+                chunks = self.text_splitter.split_text(transcript)
+                
+                # Prepare metadata for each chunk
+                chunk_metadata = []
+                for i, chunk in enumerate(chunks):
+                    metadata = {
+                        "text": chunk,
+                        "namespace": space.vector_namespace,
+                        "title": document.title,
+                        "type": "youtube_transcript",
+                        "chunk_index": i,
+                        "document_id": str(document.id),
+                        "space_id": str(space_id)
+                    }
+                    chunk_metadata.append(metadata)
+                
+                # Store in vector database
+                if self.vector_service.pinecone_available:
+                    vector_result = await self.vector_service.store_embeddings(
+                        texts=[chunk["text"] for chunk in chunk_metadata],
+                        metadata=chunk_metadata,
+                        namespace=space.vector_namespace
+                    )
+                    
+                    document.vector_ids = vector_result.get("vector_ids", [])
+                    document.chunk_count = len(chunks)
+                else:
+                    logger.warning("Vector service not available, skipping vector storage")
+                    document.vector_ids = []
+                    document.chunk_count = len(chunks)
+                
+                # Update status to completed
+                document.processing_status = ProcessingStatus.COMPLETED
+                document.processed_at = datetime.utcnow()
+                db.commit()
+                
+                logger.info(f"Successfully processed YouTube URL: {url}")
+                
+            except Exception as e:
+                logger.error(f"Error processing YouTube URL {url}: {str(e)}")
+                document.processing_status = ProcessingStatus.FAILED
+                document.error_message = str(e)
+                db.commit()
+                
+        finally:
+            db.close()
+    
+    async def process_web_url(self, url: str, space_id: uuid.UUID):
+        """Process web URL and extract content"""
+        db = SessionLocal()
+        try:
+            # Find the document record
+            document = db.query(Document).filter(
+                Document.file_path == url,
+                Document.space_id == space_id
+            ).first()
+            
+            if not document:
+                logger.error(f"Document not found for web URL: {url}")
+                return
+            
+            # Update status to processing
+            document.processing_status = ProcessingStatus.PROCESSING
+            db.commit()
+            
+            try:
+                # Extract web content
+                content = await self.web_scraper.extract_content(url)
+                
+                if not content:
+                    document.processing_status = ProcessingStatus.FAILED
+                    document.error_message = "Failed to extract content from web page"
+                    db.commit()
+                    return
+                
+                # Update document with content
+                document.content_preview = content[:500] + "..." if len(content) > 500 else content
+                document.word_count = len(content.split())
+                document.doc_metadata = {
+                    "source": "web_page",
+                    "url": url,
+                    "content_length": len(content)
+                }
+                
+                # Get space for namespace
+                space = db.query(Space).filter(Space.id == space_id).first()
+                if not space:
+                    raise ValueError("Space not found")
+                
+                # Process and store content
+                chunks = self.text_splitter.split_text(content)
+                
+                # Prepare metadata for each chunk
+                chunk_metadata = []
+                for i, chunk in enumerate(chunks):
+                    metadata = {
+                        "text": chunk,
+                        "namespace": space.vector_namespace,
+                        "title": document.title,
+                        "type": "web_content",
+                        "chunk_index": i,
+                        "document_id": str(document.id),
+                        "space_id": str(space_id)
+                    }
+                    chunk_metadata.append(metadata)
+                
+                # Store in vector database
+                if self.vector_service.pinecone_available:
+                    vector_result = await self.vector_service.store_embeddings(
+                        texts=[chunk["text"] for chunk in chunk_metadata],
+                        metadata=chunk_metadata,
+                        namespace=space.vector_namespace
+                    )
+                    
+                    document.vector_ids = vector_result.get("vector_ids", [])
+                    document.chunk_count = len(chunks)
+                else:
+                    logger.warning("Vector service not available, skipping vector storage")
+                    document.vector_ids = []
+                    document.chunk_count = len(chunks)
+                
+                # Update status to completed
+                document.processing_status = ProcessingStatus.COMPLETED
+                document.processed_at = datetime.utcnow()
+                db.commit()
+                
+                logger.info(f"Successfully processed web URL: {url}")
+                
+            except Exception as e:
+                logger.error(f"Error processing web URL {url}: {str(e)}")
+                document.processing_status = ProcessingStatus.FAILED
+                document.error_message = str(e)
+                db.commit()
+                
+        finally:
+            db.close()
+    
+    async def delete_document(self, document_id: uuid.UUID):
+        """Delete document and its vectors"""
+        db = SessionLocal()
+        try:
+            document = db.query(Document).filter(Document.id == document_id).first()
+            if not document:
+                return
+            
+            # Delete vectors if any
+            if document.vector_ids:
+                space = db.query(Space).filter(Space.id == document.space_id).first()
+                if space:
+                    await self.vector_service.delete_vectors(
+                        namespace=space.vector_namespace,
+                        ids=document.vector_ids
+                    )
+            
+            # Delete extracted images if any
+            if document.extracted_images:
+                for image in document.extracted_images:
+                    image_path = image.get('image_path')
+                    if image_path and os.path.exists(image_path):
+                        os.remove(image_path)
+                
+                # Try to remove images directory if empty
+                image_dir = os.path.join(os.path.dirname(document.file_path), 'images')
+                if os.path.exists(image_dir) and not os.listdir(image_dir):
+                    os.rmdir(image_dir)
+            
+            # Delete file
+            if os.path.exists(document.file_path):
+                os.remove(document.file_path)
+            
+            # Delete document record
+            db.delete(document)
+            db.commit()
+            
+        finally:
+            db.close()

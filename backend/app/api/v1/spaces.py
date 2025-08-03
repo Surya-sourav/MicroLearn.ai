@@ -2,12 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 import uuid
+import logging
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.space import Space
 from app.schemas.space import Space as SpaceSchema, SpaceCreate, SpaceUpdate
 from app.services.vector_service import VectorService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -104,8 +107,13 @@ async def delete_space(
         )
     
     # Clean up vector database
-    vector_service = VectorService()
-    await vector_service.delete_namespace(space.vector_namespace)
+    try:
+        vector_service = VectorService()
+        if vector_service.pinecone_available and space.vector_namespace:
+            await vector_service.delete_vectors(space.vector_namespace)
+    except Exception as e:
+        logger.warning(f"Failed to clean up vector database for space {space_id}: {e}")
+        # Continue with space deletion even if vector cleanup fails
     
     db.delete(space)
     db.commit()

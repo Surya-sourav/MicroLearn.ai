@@ -8,6 +8,7 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.space import Space
 from app.models.flashcard import Flashcard
+from app.models.document import Document
 from app.schemas.flashcard import Flashcard as FlashcardSchema, FlashcardCreate, FlashcardUpdate, FlashcardReview
 from app.services.flashcard_service import FlashcardService
 
@@ -63,6 +64,7 @@ async def create_flashcard(
 @router.post("/spaces/{space_id}/flashcards/generate")
 async def generate_flashcards(
     space_id: uuid.UUID,
+    document_id: uuid.UUID,
     count: int = 10,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -79,8 +81,20 @@ async def generate_flashcards(
             detail="Space not found"
         )
     
+    # Verify document exists and belongs to the space
+    document = db.query(Document).filter(
+        Document.id == document_id,
+        Document.space_id == space_id
+    ).first()
+    
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
     flashcard_service = FlashcardService()
-    flashcards = await flashcard_service.generate_flashcards_for_space(space_id, count)
+    flashcards = await flashcard_service.generate_flashcards_for_document(document_id, count)
     
     return {"message": f"Generated {len(flashcards)} flashcards", "flashcards": flashcards}
 

@@ -64,8 +64,8 @@ export default function RegisterPage() {
 
         <Card className="bg-white dark:bg-[#16171A] shadow-xl max-h-[90vh] overflow-y-auto">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Create Your Pixa Account</CardTitle>
-            <p className="text-gray-600 dark:text-gray-400 text-center">Join Pixa and start your AI journey today.</p>
+            <CardTitle className="text-2xl font-bold text-center">Create Your Account</CardTitle>
+            <p className="text-gray-600 dark:text-gray-400 text-center">Join M I C R O and start your AI Learning today.</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +77,7 @@ export default function RegisterPage() {
                     id="username"
                     name="username"
                     type="text"
-                    placeholder="johndoe"
+                    placeholder="surya"
                     value={formData.username}
                     onChange={handleInputChange}
                     className="pl-10"
@@ -94,7 +94,7 @@ export default function RegisterPage() {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="surya@gmail.com"
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10"

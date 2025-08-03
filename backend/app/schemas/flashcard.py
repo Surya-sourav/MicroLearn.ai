@@ -21,7 +21,7 @@ class FlashcardUpdate(BaseModel):
 
 class FlashcardReview(BaseModel):
     correct: bool
-    difficulty_rating: int  # 1-5 scale
+    difficulty_rating: Optional[int] = 3  # 1-5 scale, default to 3 if not provided
 
 class Flashcard(FlashcardBase):
     id: uuid.UUID

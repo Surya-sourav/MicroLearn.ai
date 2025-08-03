@@ -13,37 +13,72 @@ logger = logging.getLogger(__name__)
 
 class VectorService:
     def __init__(self):
-        # Initialize embeddings
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002",
-            openai_api_key=settings.OPENAI_API_KEY
-        )
+        # Check if Pinecone credentials are available
+        self.pinecone_available = bool(settings.PINECONE_API_KEY and settings.PINECONE_ENVIRONMENT)
         
-        # Initialize Pinecone client
-        pc = Pinecone(api_key=settings.PINECONE_API_KEY)
+        if not self.pinecone_available:
+            logger.warning("Pinecone credentials not configured. Vector search will be disabled.")
+            self.embeddings = None
+            self.index = None
+            self.vectorstore = None
+            return
         
-        # Create index if it doesn't exist
-        index_name = settings.PINECONE_INDEX_NAME
-        if index_name not in pc.list_indexes().names():
-            pc.create_index(
-                name=index_name,
-                dimension=1536,  # OpenAI text-embedding-3-small embedding dimension
-                metric='cosine',
-                spec=ServerlessSpec(
-                    cloud='gcp',
-                    region='us-west1'
-                )
+        try:
+            # Initialize embeddings
+            self.embeddings = OpenAIEmbeddings(
+                model="text-embedding-ada-002",
+                openai_api_key=settings.OPENAI_API_KEY
             )
-        
-        # Get index
-        self.index = pc.Index(index_name)
-        
-        # Initialize LangChain vectorstore
-        self.vectorstore = PineconeVectorStore(
-            index=self.index,
-            embedding=self.embeddings,
-            text_key="text"
-        )
+            
+            # Initialize Pinecone client
+            pc = Pinecone(api_key=settings.PINECONE_API_KEY)
+            
+            # Create index if it doesn't exist
+            index_name = settings.PINECONE_INDEX_NAME
+            try:
+                existing_indexes = pc.list_indexes().names()
+                
+                if index_name not in existing_indexes:
+                    logger.info(f"Creating Pinecone index: {index_name}")
+                    pc.create_index(
+                        name=index_name,
+                        dimension=1536,  # OpenAI text-embedding-3-small embedding dimension
+                        metric='cosine',
+                        spec=ServerlessSpec(
+                            cloud='aws',
+                            region='us-east-1'
+                        )
+                    )
+                    # Wait for index to be ready
+                    import time
+                    time.sleep(5)
+                
+                # Get index
+                self.index = pc.Index(index_name)
+                
+                # Initialize LangChain vectorstore
+                self.vectorstore = PineconeVectorStore(
+                    index=self.index,
+                    embedding=self.embeddings,
+                    text_key="text"
+                )
+                
+                logger.info("Pinecone initialized successfully")
+                
+            except Exception as pinecone_error:
+                logger.error(f"Pinecone initialization failed: {pinecone_error}")
+                # Fall back to no vector search
+                self.pinecone_available = False
+                self.embeddings = None
+                self.index = None
+                self.vectorstore = None
+                
+        except Exception as e:
+            logger.error(f"Failed to initialize embeddings or Pinecone: {e}")
+            self.pinecone_available = False
+            self.embeddings = None
+            self.index = None
+            self.vectorstore = None
 
     def _flatten_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         flattened = {}
@@ -73,6 +108,15 @@ class VectorService:
         document_metadata: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Store text embeddings in vector database"""
+        if not self.pinecone_available:
+            logger.warning("Pinecone not available. Skipping vector storage.")
+            return {
+                "vector_ids": [],
+                "total_vectors": 0,
+                "chunks_metadata": [],
+                "status": "skipped_no_pinecone"
+            }
+        
         try:
             logger.info("Starting to store embeddings")
             chunks_metadata = []
@@ -136,6 +180,10 @@ class VectorService:
         filter: Optional[Dict] = None
     ) -> List[Dict[str, Any]]:
         """Search for similar documents"""
+        if not self.pinecone_available:
+            logger.warning("Pinecone not available. Returning empty search results.")
+            return []
+        
         try:
             # Set namespace and perform search
             self.vectorstore._namespace = namespace
@@ -165,7 +213,7 @@ class VectorService:
             
         except Exception as e:
             logger.error(f"Error in similarity search: {str(e)}")
-            raise
+            return []
     
     async def delete_vectors(
         self,
@@ -173,6 +221,10 @@ class VectorService:
         ids: Optional[List[str]] = None
     ):
         """Delete vectors by IDs or entire namespace"""
+        if not self.pinecone_available:
+            logger.warning("Pinecone not available. Skipping vector deletion.")
+            return
+        
         try:
             if ids:
                 # Delete specific vectors
@@ -183,4 +235,4 @@ class VectorService:
             logger.info(f"Successfully deleted vectors in namespace: {namespace}")
         except Exception as e:
             logger.error(f"Error deleting vectors: {str(e)}")
-            raise
+            logger.warning("Continuing without vector deletion")

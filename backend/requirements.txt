@@ -4,6 +4,7 @@ python-jose[cryptography]
 uvicorn[standard]
 sqlalchemy
 psycopg2-binary
+alembic
 pydantic[email]
 pydantic-settings
 python-multipart
@@ -34,3 +35,8 @@ numpy
 tenacity
 pinecone  
 tiktoken
+
+# Web Scraping and Content Extraction
+youtube-transcript-api
+beautifulsoup4
+requests

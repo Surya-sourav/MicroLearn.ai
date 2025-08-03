@@ -136,16 +136,20 @@ async def chat_with_space(
     
     # Get relevant context from vector database
     vector_service = VectorService()
+    context_docs = []
     
-    try:
-        context_docs = await vector_service.similarity_search(
-            chat_request.message, 
-            space.vector_namespace,
-            top_k=5
-        )
-    except Exception as e:
-        logger.error(f"Vector search error: {str(e)}")
-        context_docs = []
+    if vector_service.pinecone_available and space.vector_namespace:
+        try:
+            context_docs = await vector_service.similarity_search(
+                chat_request.message, 
+                space.vector_namespace,
+                top_k=5
+            )
+        except Exception as e:
+            logger.error(f"Vector search error: {str(e)}")
+            context_docs = []
+    else:
+        logger.info("Vector search not available, proceeding without context")
     
     # Generate response using LLM with conversation history
     llm_service = LLMService()

@@ -1,9 +1,12 @@
 import httpx
 from bs4 import BeautifulSoup
+import logging
 from typing import Optional
 
+logger = logging.getLogger(__name__)
+
 class WebScraper:
-    async def scrape_url(self, url: str) -> Optional[str]:
+    async def extract_content(self, url: str) -> Optional[str]:
         """Scrape content from web URL"""
         try:
             async with httpx.AsyncClient() as client:
@@ -27,5 +30,5 @@ class WebScraper:
                 return text
                 
         except Exception as e:
-            print(f"Error scraping URL {url}: {e}")
+            logger.error(f"Error scraping URL {url}: {e}")
             return None
