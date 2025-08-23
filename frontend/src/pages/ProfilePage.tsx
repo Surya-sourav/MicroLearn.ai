@@ -47,7 +47,7 @@ export default function ProfilePage() {
       totalSpaces: spaces.length,
       totalDocuments: spaces.reduce((acc, space) => acc + (space.document_count || 0), 0),
       totalFlashcards: spaces.reduce((acc, space) => acc + (space.flashcard_count || 0), 0),
-      totalConversations: spaces.reduce((acc, space) => acc + (space.conversation_count || 0), 0)
+      totalConversations: 0  // TODO: Add conversation tracking
     }
   }
 

@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button"
 import { Progress } from "../components/ui/progress"
 import LoadingSpinner from "../components/common/LoadingSpinner"
 import { 
-  Clock, 
+ 
   CheckCircle, 
   XCircle, 
   ArrowLeft, 
@@ -60,7 +60,7 @@ export default function QuizTakingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<any>(null)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (quizId) {

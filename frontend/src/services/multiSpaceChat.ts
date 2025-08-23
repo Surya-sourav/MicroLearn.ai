@@ -23,9 +23,7 @@ interface ChatResponse {
   }
 }
 
-interface SpaceSummaryRequest {
-  space_ids: string[]
-}
+
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("access_token")

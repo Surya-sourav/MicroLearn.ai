@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { useSpaces } from "../hooks/useSpaces"
-import { useAuth } from "../hooks/useAuth"
+
 import LoadingSpinner from "../components/common/LoadingSpinner"
 import { 
   Folder, 
@@ -15,13 +15,12 @@ import {
   Brain, 
   MessageCircle,
   ArrowRight,
-  Settings
+
 } from "lucide-react"
 
 export default function SpacesPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const { spaces, loading, error, createSpace } = useSpaces()
+  const { spaces, loading, createSpace } = useSpaces()
   const [searchTerm, setSearchTerm] = useState("")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newSpace, setNewSpace] = useState({
@@ -33,8 +32,8 @@ export default function SpacesPage() {
 
   const filteredSpaces = spaces.filter(space =>
     space.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    space.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    space.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    space.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    space.subject?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleCreateSpace = async (e: React.FormEvent) => {
@@ -152,7 +151,7 @@ export default function SpacesPage() {
                 <MessageCircle className="w-8 h-8 text-orange-600 mr-3" />
                 <div>
                   <div className="text-2xl font-bold">
-                    {spaces.reduce((acc, space) => acc + (space.conversation_count || 0), 0)}
+                    0
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Total Conversations</div>
                 </div>

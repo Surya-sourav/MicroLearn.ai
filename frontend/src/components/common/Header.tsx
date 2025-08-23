@@ -15,16 +15,16 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
 
   return (
     <header className="fixed top-4 left-1/2 -translate-x-1/2 z-20 flex h-[60px] w-full max-w-5xl px-4 text-gray-700 bg-white dark:text-gray-200 dark:bg-[#17181b] rounded-md shadow-md backdrop-blur-lg opacity-[0.99]">
-      <Link to="https://waitinglist-micro-ai.vercel.app/" className="flex p-1 gap-2 items-center">
+      <div className="flex p-1 gap-2 items-center">
         <div className="h-[30px] max-w-[100px]">
           <img
-            src="https://via.placeholder.com/100x30/6366f1/ffffff?text=PIXA"
+            src="/microlearn_logo.png"
             alt="logo"
             className="object-contain h-full w-full dark:invert"
           />
         </div>
-        <span className="uppercase text-base font-medium">M I C R O</span>
-      </Link>
+        <span className="uppercase font-bold text-base">M I C R O</span>
+      </div>
 
       <nav className="hidden lg:flex items-center gap-5 mx-auto">
         {/* <Link to="#" className="hover:text-black dark:hover:text-white transition-colors">
@@ -59,8 +59,8 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </Button>
         <Button asChild className="hidden lg:flex gap-2">
-          <Link to="https://waitinglist-micro-ai.vercel.app/">
-            <span>Learn Micro Way</span>
+        <Link to="https://waitinglist-micro-ai.vercel.app/" target="_blank" rel="noopener noreferrer">
+        <span>Join Waitlist</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </Button>
@@ -91,7 +91,7 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
             </a> */}
             <Button asChild className="mt-4">
               <Link to="https://waitinglist-micro-ai.vercel.app/">
-                <span>Learn Micro Way</span>
+                <span>Join Waitlist</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </Button>
